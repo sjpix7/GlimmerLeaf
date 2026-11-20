@@ -19,12 +19,15 @@ Four weeks of small daily practices, plus a daily gratitude list and a free-writ
 
 <img src="store/play_feature_1024x500.png" alt="Glimmerleaf feature graphic" width="100%" />
 
+<a href="https://play.google.com/store/apps/details?id=com.sjpixels.glimmerleaf"><img src="https://play.google.com/intl/en_us/badges/static/images/badges/en_badge_web_generic.png" alt="Get it on Google Play" height="80" /></a>
+
 </div>
 
 ---
 
 ## 📖 Table of contents
 
+- [📸 Screenshots](#-screenshots)
 - [✨ Features](#-features)
 - [🌍 Languages](#-languages)
 - [🔒 Privacy](#-privacy)
@@ -36,6 +39,30 @@ Four weeks of small daily practices, plus a daily gratitude list and a free-writ
 - [📁 Project structure](#-project-structure)
 - [✅ Before release](#-before-release)
 - [📄 License](#-license)
+
+---
+
+## 📸 Screenshots
+
+<div align="center">
+
+<table>
+  <tr>
+    <td align="center"><img src="store/screenshots/01-today.png" alt="Today" width="200" /><br/><sub>Today</sub></td>
+    <td align="center"><img src="store/screenshots/02-practice.png" alt="Practice" width="200" /><br/><sub>Practice</sub></td>
+    <td align="center"><img src="store/screenshots/03-daily-gratitude.png" alt="Daily gratitude" width="200" /><br/><sub>Daily gratitude</sub></td>
+    <td align="center"><img src="store/screenshots/04-journal.png" alt="Gratitude journal" width="200" /><br/><sub>Gratitude journal</sub></td>
+  </tr>
+  <tr>
+    <td align="center"><img src="store/screenshots/05-insights.png" alt="Insights" width="200" /><br/><sub>Insights</sub></td>
+    <td align="center"><img src="store/screenshots/06-history.png" alt="History" width="200" /><br/><sub>History</sub></td>
+    <td align="center"><img src="store/screenshots/07-themes-night.png" alt="Themes, night mode" width="200" /><br/><sub>Themes, night mode</sub></td>
+  </tr>
+</table>
+
+<a href="https://play.google.com/store/apps/details?id=com.sjpixels.glimmerleaf"><img src="https://play.google.com/intl/en_us/badges/static/images/badges/en_badge_web_generic.png" alt="Get it on Google Play" height="64" /></a>
+
+</div>
 
 ---
 
