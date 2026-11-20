@@ -1,4 +1,4 @@
-package com.sjpixels.gratitude
+package com.sjpixels.glimmerleaf
 
 import android.view.Gravity
 import android.view.View

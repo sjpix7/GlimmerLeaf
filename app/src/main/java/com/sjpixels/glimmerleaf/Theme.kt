@@ -1,4 +1,4 @@
-package com.sjpixels.gratitude
+package com.sjpixels.glimmerleaf
 
 /** A full colour palette for one theme in day or night mode. */
 data class Pal(

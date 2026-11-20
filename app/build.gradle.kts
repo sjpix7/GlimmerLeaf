@@ -13,11 +13,11 @@ val keystoreProps = Properties().apply {
 }
 
 android {
-    namespace = "com.sjpixels.gratitude"
+    namespace = "com.sjpixels.glimmerleaf"
     compileSdk = 36
 
     defaultConfig {
-        applicationId = "com.sjpixels.gratitude"
+        applicationId = "com.sjpixels.glimmerleaf"
         minSdk = 26
         targetSdk = 36
         versionCode = 1

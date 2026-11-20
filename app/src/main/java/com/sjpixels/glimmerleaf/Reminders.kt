@@ -1,4 +1,4 @@
-package com.sjpixels.gratitude
+package com.sjpixels.glimmerleaf
 
 import android.app.AlarmManager
 import android.app.Notification
@@ -20,7 +20,7 @@ import java.time.ZoneId
  */
 object Reminders {
     private const val RC = 4201
-    private const val ACTION = "com.sjpixels.gratitude.REMINDER"
+    private const val ACTION = "com.sjpixels.glimmerleaf.REMINDER"
 
     fun slots(p: Prefs): List<Int> {
         val start = p.reminderStartMin.coerceIn(0, 24 * 60 - 1)

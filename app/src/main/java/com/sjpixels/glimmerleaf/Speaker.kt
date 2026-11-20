@@ -1,4 +1,4 @@
-package com.sjpixels.gratitude
+package com.sjpixels.glimmerleaf
 
 import android.content.Context
 import android.os.Bundle

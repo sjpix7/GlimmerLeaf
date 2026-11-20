@@ -1,4 +1,4 @@
-package com.sjpixels.gratitude
+package com.sjpixels.glimmerleaf
 
 import android.animation.ValueAnimator
 import android.content.Context

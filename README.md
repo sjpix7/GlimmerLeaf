@@ -121,7 +121,7 @@ Or build from the command line:
 <details>
 <summary><b>Step-by-step guide</b> (click to expand)</summary>
 
-1. **🆔 App ID:** change `applicationId` in `app/build.gradle.kts` if you want to (it's currently `com.sjpixels.gratitude`). It can't be changed after the first upload.
+1. **🆔 App ID:** change `applicationId` in `app/build.gradle.kts` if you want to (it's currently `com.sjpixels.glimmerleaf`). It can't be changed after the first upload.
 2. **🔑 Sign the bundle:** go to **Build → Generate Signed App Bundle / APK → Android App Bundle**. Create an upload key, keep the `.jks` file and its passwords safe, and build the `release` variant. The output is `app/release/app-release.aab`.
 
    To do this from the command line instead, create `keystore.properties` in the project root:
@@ -188,13 +188,13 @@ for f in app/src/main/assets/content/*.json; do python3 -m json.tool "$f" > /dev
 ## 📁 Project structure
 
 ```
-GratitudeJourney/
+GlimmerLeaf/
 ├── app/
 │   ├── build.gradle.kts
 │   └── src/main/
 │       ├── AndroidManifest.xml
 │       ├── assets/content/        # 📚 practices, one JSON per language
-│       ├── java/com/sjpixels/gratitude/
+│       ├── java/com/sjpixels/glimmerleaf/
 │       │   ├── MainActivity.kt    # entry point, navigation, credit
 │       │   ├── Journey.kt         # 🧭 journey engine
 │       │   ├── Content.kt         # content loading
