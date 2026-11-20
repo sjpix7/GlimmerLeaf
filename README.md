@@ -121,6 +121,8 @@ Or build from the command line:
 
 ## 🚀 Publish to Google Play
 
+> 📋 **Step-by-step Play Console guide, with ready-to-paste listing text and every App content answer:** [`store/PLAY_CONSOLE.md`](store/PLAY_CONSOLE.md). The privacy policy is served from [`docs/privacy.html`](docs/privacy.html) via GitHub Pages.
+
 <details>
 <summary><b>Step-by-step guide</b> (click to expand)</summary>
 
@@ -145,7 +147,7 @@ Or build from the command line:
    > ⚠️ `keystore.properties`, `*.jks` and `*.keystore` are in `.gitignore`. Never commit them.
 
 3. **🏪 Play Console:** create the app, upload the `.aab`, and fill in:
-   - **Store listing:** `store/play_icon_512.png`, `store/play_feature_1024x500.png`, and 2–8 phone screenshots.
+   - **Store listing:** `store/play_icon_512.png`, `store/play_feature_1024x500.png`, and the phone screenshots in `store/screenshots/`.
    - **Privacy policy:** required. A ready-to-host text is in `PRIVACY.md`.
    - **Data safety:** the app collects and shares **no data**.
    - **Content rating:** no objectionable content.
