@@ -12,6 +12,7 @@ class HistoryScreen(act: MainActivity) : Screen(act) {
     private var initialised = false
     private var dailyLimit = 30
     private var journalLimit = 20
+    private val activity = ActivitySection(act)
 
     override fun build(ui: Ui): View {
         val c = ui.c
@@ -148,6 +149,9 @@ class HistoryScreen(act: MainActivity) : Screen(act) {
             }
             page.addView(card, ui.lp(b = 12))
         }
+        // Activity across all journeys, below the journey cards, with the same pickers and
+        // "Show dates" switch as Insights.
+        activity.build(ui, page, db.allSessions().map { Journey.localDate(it.completedAt) }, top = 16)
         return ui.page(page)
     }
 
