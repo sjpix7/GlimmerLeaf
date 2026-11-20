@@ -29,8 +29,9 @@ Organisation accounts don't have the "12 testers for 14 days" closed-test rule t
 
 Play Console → **Create app**:
 
-- App name: `Glimmerleaf: Gratitude Journal`
-- Default language: English (United States) – en-US
+- App name: `Glimmerleaf: Gratitude Diary`
+- Package name: `com.sjpixels.glimmerleaf` (must match the app; can never be changed)
+- Default language: English (United Kingdom) – en-GB (the app uses British spelling)
 - App or game: **App**
 - Free or paid: **Free** (this can't be changed to paid later)
 - Tick the two declarations (Developer Program Policies, US export laws) → **Create app**
@@ -76,7 +77,7 @@ Play Console → **Create app**:
 **App name** (30 max)
 
 ```
-Glimmerleaf: Gratitude Journal
+Glimmerleaf: Gratitude Diary
 ```
 
 **Short description** (80 max)
@@ -90,7 +91,7 @@ Glimmerleaf: Gratitude Journal
 ```
 What did you notice today?
 
-Glimmerleaf is a calm, beautiful gratitude journal built around The 28-Day Gratitude Journey: one short practice a day that trains your heart to notice what is good.
+Glimmerleaf is a calm, beautiful gratitude diary built around The 28-Day Gratitude Journey: one short practice a day that trains your heart to notice what is good.
 
 THE 28-DAY JOURNEY
 • Four weeks: Noticing, Connection, Body, Home & World, and Transformation
@@ -146,9 +147,9 @@ Recommended: send it to **Internal testing** first (Testing → Internal testing
 5. Release notes:
 
    ```
-   <en-US>
+   <en-GB>
    First release of Glimmerleaf: the 28-day gratitude journey, daily gratitude, a free-writing journal, read-aloud, reminders, insights, 7 themes and 9 languages.
-   </en-US>
+   </en-GB>
    ```
 
 6. **Next → Save → Testers**: create an email list with your own Google account, copy the opt-in link, open it on your phone and install.

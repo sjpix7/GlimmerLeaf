@@ -69,6 +69,7 @@ class MainActivity : Activity() {
     companion object {
         const val EXTRA_OPEN_DAY = "open_day"
         const val CREDIT_URL = "https://sjpixels.com/"
+        const val PRIVACY_URL = "https://sjpix7.github.io/GlimmerLeaf/privacy.html"
         private const val REQ_NOTIF = 11
     }
 

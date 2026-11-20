@@ -210,6 +210,9 @@ class SettingsScreen(act: MainActivity) : Screen(act) {
         }
         ui.clickable(credit, ui.dpf(12)) { act.openUrl(MainActivity.CREDIT_URL) }
         about.addView(credit, ui.lp(t = 4))
+        // Google Play requires the privacy policy to be reachable from inside the app.
+        about.addView(ui.divider(), ui.lp(t = 4, b = 4))
+        about.addView(valueRow(ui, c.t("privacy_policy"), "", null) { act.openUrl(MainActivity.PRIVACY_URL) })
         page.addView(about, ui.lp())
 
         return ui.page(page)

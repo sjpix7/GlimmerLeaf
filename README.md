@@ -4,6 +4,8 @@
 
 # Glimmerleaf
 
+_On Google Play as **Glimmerleaf: Gratitude Diary**_
+
 **A 28-day gratitude practice for Android that works fully offline.**<br/>
 Four weeks of small daily practices, plus a daily gratitude list and a free-writing journal, to train your heart to notice what is good.
 
