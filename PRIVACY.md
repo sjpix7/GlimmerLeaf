@@ -1,8 +1,8 @@
-# Privacy Policy: Gratitude Journey
+# Privacy Policy: Glimmerleaf
 
 _Last updated: November 2026_
 
-Gratitude Journey ("the app") is made by sj.pixels.
+Glimmerleaf ("the app") is made by sj.pixels.
 
 **We collect no personal data.** The app works entirely offline. Everything you enter (journal notes, mood, progress, history and settings) is stored only on your device. It is never sent to us or to anyone else.
 
@@ -13,4 +13,4 @@ Gratitude Journey ("the app") is made by sj.pixels.
 - **Backups:** if Android's own device backup is turned on, your app data may be included in your personal Google backup. This is controlled by your device settings.
 - **Deleting data:** delete individual journeys, days or entries in History, or uninstall the app to remove everything.
 
-Contact: sj.pixels
+Contact: sj.pixels · https://sjpixels.com/

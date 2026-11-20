@@ -114,5 +114,14 @@ object Journey {
             .atZone(ZoneId.systemDefault()).toInstant().toEpochMilli()
     }
 
+    /** Moves a pending unlock to the new first-reminder time on the same date, after the user changes that time. */
+    fun realignUnlock(prefs: Prefs) {
+        val at = prefs.unlockAt
+        if (at <= System.currentTimeMillis()) return
+        val m = prefs.reminderStartMin
+        prefs.unlockAt = localDate(at).atTime(m / 60, m % 60)
+            .atZone(ZoneId.systemDefault()).toInstant().toEpochMilli()
+    }
+
     fun localDate(ms: Long): LocalDate = Instant.ofEpochMilli(ms).atZone(ZoneId.systemDefault()).toLocalDate()
 }

@@ -276,7 +276,7 @@
     }
   ],
   "ui": {
-    "app_name": "感謝の旅",
+    "app_name": "Glimmerleaf",
     "tab_today": "今日",
     "tab_contents": "目次",
     "tab_history": "履歴",
@@ -365,6 +365,7 @@
     "current_streak": "現在の連続日数",
     "best_streak": "最長の連続日数",
     "days_short": "日",
+    "day_short": "日",
     "total_sessions": "実践回数",
     "notes_written": "書いたメモ",
     "journeys_completed": "完了した旅",
@@ -420,6 +421,7 @@
     "notif_permission": "お知らせを受け取るには通知を許可してください。",
     "now_reading": "読み上げ中…",
     "notes_count_n": "メモ {n}件",
+    "notes_count_1": "メモ 1件",
     "mood_n": "気分 {n}/5",
     "open": "開く",
     "rituals_hint": "毎日の実践と一緒に、毎日行いましょう。"

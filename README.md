@@ -1,8 +1,8 @@
 <div align="center">
 
-<img src="store/play_icon_512.png" alt="Gratitude Journey icon" width="120" height="120" />
+<img src="store/play_icon_512.png" alt="Glimmerleaf icon" width="120" height="120" />
 
-# Gratitude Journey
+# Glimmerleaf
 
 **A 28-day gratitude practice for Android that works fully offline.**<br/>
 Four weeks of small daily practices that train your heart to notice what is good.
@@ -15,7 +15,7 @@ Four weeks of small daily practices that train your heart to notice what is good
 [![Offline](https://img.shields.io/badge/works-100%25%20offline-orange)](#-privacy)
 [![License: GPL v3](https://img.shields.io/badge/license-GPLv3-blue.svg)](LICENSE)
 
-<img src="store/play_feature_1024x500.png" alt="Gratitude Journey feature graphic" width="100%" />
+<img src="store/play_feature_1024x500.png" alt="Glimmerleaf feature graphic" width="100%" />
 
 </div>
 
@@ -213,7 +213,7 @@ GratitudeJourney/
 
 ## ✅ Before release
 
-- [ ] Replace `CREDIT_URL` in `MainActivity.kt`. It's currently `https://sj.pixels`, which isn't a reachable address because there's no `.pixels` domain.
+- [x] `CREDIT_URL` in `MainActivity.kt` points to https://sjpixels.com/
 - [ ] Increase `versionCode` (and `versionName`) in `app/build.gradle.kts` for every upload.
 - [ ] Take 2–8 phone screenshots for the store listing.
 - [ ] Host `PRIVACY.md` at a public URL for Play Console.

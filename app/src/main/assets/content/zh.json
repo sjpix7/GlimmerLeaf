@@ -276,7 +276,7 @@
     }
   ],
   "ui": {
-    "app_name": "感恩之旅",
+    "app_name": "Glimmerleaf",
     "tab_today": "今天",
     "tab_contents": "目录",
     "tab_history": "历史",
@@ -365,6 +365,7 @@
     "current_streak": "当前连续",
     "best_streak": "最长连续",
     "days_short": "天",
+    "day_short": "天",
     "total_sessions": "练习次数",
     "notes_written": "笔记数",
     "journeys_completed": "完成的旅程",
@@ -420,6 +421,7 @@
     "notif_permission": "请允许通知，以便应用提醒你。",
     "now_reading": "正在朗读…",
     "notes_count_n": "{n}条笔记",
+    "notes_count_1": "1条笔记",
     "mood_n": "心情 {n}/5",
     "open": "打开",
     "rituals_hint": "每天在日常练习之外也做这些。"

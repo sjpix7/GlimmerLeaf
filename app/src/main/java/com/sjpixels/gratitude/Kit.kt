@@ -179,9 +179,17 @@ class Ui(val ctx: Context, val p: Pal, val c: ContentPack) {
 
     fun space(h: Int): View = View(ctx).apply { layoutParams = LinearLayout.LayoutParams(1, dp(h)) }
 
-    fun divider(): View = View(ctx).apply {
-        setBackgroundColor(p.line)
-        layoutParams = LinearLayout.LayoutParams(MATCH, maxOf(1, dp(1) / 2 + 1))
+    /** A hairline. Its height is fixed in onMeasure, so callers can pass any LayoutParams (e.g. lp(t = 12)) for margins. */
+    fun divider(): View {
+        val h = maxOf(1, dp(1) / 2 + 1)
+        return object : View(ctx) {
+            override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
+                setMeasuredDimension(getDefaultSize(suggestedMinimumWidth, widthMeasureSpec), h)
+            }
+        }.apply {
+            setBackgroundColor(p.line)
+            layoutParams = LinearLayout.LayoutParams(MATCH, h)
+        }
     }
 
     fun scroll(content: View): ScrollView = ScrollView(ctx).apply {

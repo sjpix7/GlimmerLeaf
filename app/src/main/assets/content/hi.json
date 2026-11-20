@@ -276,7 +276,7 @@
     }
   ],
   "ui": {
-    "app_name": "कृतज्ञता यात्रा",
+    "app_name": "Glimmerleaf",
     "tab_today": "आज",
     "tab_contents": "सूची",
     "tab_history": "इतिहास",
@@ -365,6 +365,7 @@
     "current_streak": "वर्तमान सिलसिला",
     "best_streak": "सबसे लंबा सिलसिला",
     "days_short": "दिन",
+    "day_short": "दिन",
     "total_sessions": "सत्र",
     "notes_written": "लिखे गए नोट्स",
     "journeys_completed": "पूरी हुई यात्राएँ",
@@ -420,6 +421,7 @@
     "notif_permission": "रिमाइंडर के लिए कृपया नोटिफ़िकेशन की अनुमति दें।",
     "now_reading": "पढ़कर सुनाया जा रहा है…",
     "notes_count_n": "{n} नोट्स",
+    "notes_count_1": "1 नोट",
     "mood_n": "मूड {n}/5",
     "open": "खोलें",
     "rituals_hint": "इन्हें हर दिन अपने दैनिक अभ्यास के साथ करें।"

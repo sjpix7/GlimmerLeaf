@@ -276,7 +276,7 @@
     }
   ],
   "ui": {
-    "app_name": "Gratitude Journey",
+    "app_name": "Glimmerleaf",
     "tab_today": "Today",
     "tab_contents": "Contents",
     "tab_history": "History",
@@ -365,6 +365,7 @@
     "current_streak": "Current streak",
     "best_streak": "Best streak",
     "days_short": "days",
+    "day_short": "day",
     "total_sessions": "Sessions",
     "notes_written": "Notes written",
     "journeys_completed": "Journeys completed",
@@ -420,6 +421,7 @@
     "notif_permission": "Please allow notifications so the app can remind you.",
     "now_reading": "Reading aloud…",
     "notes_count_n": "{n} notes",
+    "notes_count_1": "1 note",
     "mood_n": "Mood {n}/5",
     "open": "Open",
     "rituals_hint": "Practise these every day alongside your daily practice."

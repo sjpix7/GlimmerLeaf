@@ -276,7 +276,7 @@
     }
   ],
   "ui": {
-    "app_name": "Voyage de gratitude",
+    "app_name": "Glimmerleaf",
     "tab_today": "Aujourd'hui",
     "tab_contents": "Sommaire",
     "tab_history": "Historique",
@@ -365,6 +365,7 @@
     "current_streak": "Série actuelle",
     "best_streak": "Meilleure série",
     "days_short": "jours",
+    "day_short": "jour",
     "total_sessions": "Séances",
     "notes_written": "Notes écrites",
     "journeys_completed": "Voyages terminés",
@@ -420,6 +421,7 @@
     "notif_permission": "Autorisez les notifications pour que l'application puisse vous le rappeler.",
     "now_reading": "Lecture à voix haute…",
     "notes_count_n": "{n} notes",
+    "notes_count_1": "1 note",
     "mood_n": "Humeur {n}/5",
     "open": "Ouvrir",
     "rituals_hint": "Pratiquez-les chaque jour en plus de votre pratique quotidienne."

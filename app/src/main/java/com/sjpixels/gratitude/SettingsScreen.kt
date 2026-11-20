@@ -137,6 +137,7 @@ class SettingsScreen(act: MainActivity) : Screen(act) {
                 pickTime(prefs.reminderStartMin) { m ->
                     prefs.reminderStartMin = m
                     if (prefs.reminderEndMin < m) prefs.reminderEndMin = m
+                    Journey.realignUnlock(prefs)
                 }
             })
             rem.addView(valueRow(ui, c.t("reminder_end"), ui.minutesLabel(prefs.reminderEndMin), null) {

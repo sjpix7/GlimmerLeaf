@@ -45,6 +45,7 @@ class ContentsScreen(act: MainActivity) : Screen(act) {
         page.addView(rCard, ui.lp())
 
         // weeks
+        val resting = st.isResting()
         for (w in 0 until 4) {
             page.addView(ui.eyebrow(c.t("week_n", "n" to w + 1)), ui.lp(t = 28))
             page.addView(ui.h2(c.weeks.getOrElse(w) { "" }), ui.lp(t = 4, b = 12))
@@ -63,6 +64,8 @@ class ContentsScreen(act: MainActivity) : Screen(act) {
                     }, ui.lp(0, WRAP, 1f))
                     val n = st.counts[day]
                     when {
+                        // While resting until tomorrow, the next practice isn't "today's" yet.
+                        status == DayStatus.CURRENT && resting -> addView(ui.chip(c.t("status_upcoming")), ui.lp(WRAP, WRAP, l = 6))
                         status == DayStatus.CURRENT -> addView(ui.chip(c.t("status_current"), p.accent, p.onAccent), ui.lp(WRAP, WRAP, l = 6))
                         n > 1 -> addView(ui.chip("×$n"), ui.lp(WRAP, WRAP, l = 6))
                         else -> addView(IconView(act, Icon.CHEVRON, p.muted, 18), ui.lp(ui.dp(18), ui.dp(18), l = 6))

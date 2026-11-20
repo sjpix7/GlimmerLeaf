@@ -276,7 +276,7 @@
     }
   ],
   "ui": {
-    "app_name": "감사 여정",
+    "app_name": "Glimmerleaf",
     "tab_today": "오늘",
     "tab_contents": "목차",
     "tab_history": "기록",
@@ -365,6 +365,7 @@
     "current_streak": "현재 연속",
     "best_streak": "최장 연속",
     "days_short": "일",
+    "day_short": "일",
     "total_sessions": "실천 횟수",
     "notes_written": "쓴 메모",
     "journeys_completed": "완료한 여정",
@@ -420,6 +421,7 @@
     "notif_permission": "알림을 받으려면 알림 권한을 허용해 주세요.",
     "now_reading": "읽어 주는 중…",
     "notes_count_n": "메모 {n}개",
+    "notes_count_1": "메모 1개",
     "mood_n": "기분 {n}/5",
     "open": "열기",
     "rituals_hint": "매일의 실천과 함께 날마다 해 보세요."

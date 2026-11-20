@@ -276,7 +276,7 @@
     }
   ],
   "ui": {
-    "app_name": "Dankbarkeitsreise",
+    "app_name": "Glimmerleaf",
     "tab_today": "Heute",
     "tab_contents": "Inhalt",
     "tab_history": "Verlauf",
@@ -365,6 +365,7 @@
     "current_streak": "Aktuelle Serie",
     "best_streak": "Beste Serie",
     "days_short": "Tage",
+    "day_short": "Tag",
     "total_sessions": "Sitzungen",
     "notes_written": "Notizen",
     "journeys_completed": "Abgeschlossene Reisen",
@@ -420,6 +421,7 @@
     "notif_permission": "Bitte erlaube Benachrichtigungen, damit die App dich erinnern kann.",
     "now_reading": "Wird vorgelesen…",
     "notes_count_n": "{n} Notizen",
+    "notes_count_1": "1 Notiz",
     "mood_n": "Stimmung {n}/5",
     "open": "Öffnen",
     "rituals_hint": "Übe diese jeden Tag zusätzlich zu deiner Tagesübung."

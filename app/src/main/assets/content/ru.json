@@ -276,7 +276,7 @@
     }
   ],
   "ui": {
-    "app_name": "Путь благодарности",
+    "app_name": "Glimmerleaf",
     "tab_today": "Сегодня",
     "tab_contents": "Оглавление",
     "tab_history": "История",
@@ -365,6 +365,7 @@
     "current_streak": "Текущая серия",
     "best_streak": "Лучшая серия",
     "days_short": "дн.",
+    "day_short": "дн.",
     "total_sessions": "Сессии",
     "notes_written": "Заметки",
     "journeys_completed": "Завершённые путешествия",
@@ -420,6 +421,7 @@
     "notif_permission": "Разрешите уведомления, чтобы приложение могло напоминать вам.",
     "now_reading": "Читаю вслух…",
     "notes_count_n": "Заметок: {n}",
+    "notes_count_1": "Заметок: 1",
     "mood_n": "Настроение {n}/5",
     "open": "Открыть",
     "rituals_hint": "Выполняйте их каждый день вместе с ежедневной практикой."

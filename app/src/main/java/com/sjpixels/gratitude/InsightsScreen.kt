@@ -80,8 +80,8 @@ class InsightsScreen(act: MainActivity) : Screen(act) {
         // ---------------------------------------------------------- all time tiles
         page.addView(ui.sectionTitle(c.t("all_time")))
         val tiles = listOf(
-            Triple(Icon.SPARK, c.t("current_streak"), "$cur ${c.t("days_short")}"),
-            Triple(Icon.HEART, c.t("best_streak"), "$best ${c.t("days_short")}"),
+            Triple(Icon.SPARK, c.t("current_streak"), "$cur ${c.t(if (cur == 1) "day_short" else "days_short")}"),
+            Triple(Icon.HEART, c.t("best_streak"), "$best ${c.t(if (best == 1) "day_short" else "days_short")}"),
             Triple(Icon.CHECK, c.t("total_sessions"), all.size.toString()),
             Triple(Icon.BOOK, c.t("notes_written"), all.sumOf { it.noteCount }.toString()),
         )

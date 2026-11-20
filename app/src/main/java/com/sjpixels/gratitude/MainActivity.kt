@@ -1,5 +1,6 @@
 package com.sjpixels.gratitude
 
+import android.annotation.SuppressLint
 import android.app.Activity
 import android.app.AlertDialog
 import android.content.ActivityNotFoundException
@@ -67,7 +68,7 @@ class MainActivity : Activity() {
 
     companion object {
         const val EXTRA_OPEN_DAY = "open_day"
-        const val CREDIT_URL = "https://sj.pixels"
+        const val CREDIT_URL = "https://sjpixels.com/"
         private const val REQ_NOTIF = 11
     }
 
@@ -295,7 +296,7 @@ class MainActivity : Activity() {
                 @Suppress("DEPRECATION")
                 w.navigationBarColor = Color.TRANSPARENT
             }
-            if (Build.VERSION.SDK_INT >= 29) w.isNavigationBarContrastEnforced = false
+            w.isNavigationBarContrastEnforced = false
             val light = if (pal.dark) 0 else
                 WindowInsetsController.APPEARANCE_LIGHT_STATUS_BARS or WindowInsetsController.APPEARANCE_LIGHT_NAVIGATION_BARS
             w.insetsController?.setSystemBarsAppearance(
@@ -406,6 +407,8 @@ class MainActivity : Activity() {
         }
     }
 
+    /** Fallback for Android 12 and older. On 13+ back (including the predictive gesture) goes through OnBackInvokedCallback above. */
+    @SuppressLint("GestureBackNavigation")
     @Deprecated("Deprecated in Java")
     override fun onBackPressed() {
         if (!handleBack()) {

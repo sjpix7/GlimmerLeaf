@@ -94,8 +94,9 @@ class HistoryScreen(act: MainActivity) : Screen(act) {
                         addView(DayBadge(act, p, day, DayStatus.DONE, 32), ui.lp(WRAP, WRAP, r = 12))
                         addView(ui.col {
                             addView(ui.text(c.t("day_n", "n" to day) + " · " + c.day(day).title, 15f, p.ink, Fonts.sansMedium))
-                            addView(ui.muted(c.t("sessions_n", "n" to daySessions.size) + "  ·  " +
-                                c.t("notes_count_n", "n" to daySessions.sumOf { it.noteCount }), 12f), ui.lp(t = 2))
+                            val notes = daySessions.sumOf { it.noteCount }
+                            val notesLabel = if (notes == 1) c.t("notes_count_1") else c.t("notes_count_n", "n" to notes)
+                            addView(ui.muted(c.t("sessions_n", "n" to daySessions.size) + "  ·  " + notesLabel, 12f), ui.lp(t = 2))
                         }, ui.lp(0, WRAP, 1f))
                         addView(ui.iconButton(Icon.TRASH, c.t("delete"), p.muted, 36, 17) {
                             act.confirm(c.t("delete_day_q", "n" to day), c.t("delete"), danger = true) {

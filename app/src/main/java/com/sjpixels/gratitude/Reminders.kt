@@ -40,7 +40,8 @@ object Reminders {
         if (!p.remindersOn) return null
         val st = Journey.state(ctx)
         if (st.cycle == null || st.current == null) return null
-        val notBefore = maxOf(now + 30_000L, st.unlockAt)
+        // A small margin so a reminder that just fired doesn't reschedule itself, without skipping a slot seconds away.
+        val notBefore = maxOf(now + 5_000L, st.unlockAt)
         val zone = ZoneId.systemDefault()
         val startDate = Instant.ofEpochMilli(notBefore).atZone(zone).toLocalDate()
         val sl = slots(p)
@@ -94,7 +95,16 @@ class ReminderReceiver : BroadcastReceiver() {
 }
 
 class BootReceiver : BroadcastReceiver() {
+    private val actions = setOf(
+        Intent.ACTION_BOOT_COMPLETED,
+        Intent.ACTION_MY_PACKAGE_REPLACED,
+        Intent.ACTION_TIME_CHANGED,
+        Intent.ACTION_TIMEZONE_CHANGED,
+        AlarmManager.ACTION_SCHEDULE_EXACT_ALARM_PERMISSION_STATE_CHANGED,
+    )
+
     override fun onReceive(context: Context, intent: Intent) {
+        if (intent.action !in actions) return
         Notifier.ensureChannel(context)
         Reminders.reschedule(context)
     }
