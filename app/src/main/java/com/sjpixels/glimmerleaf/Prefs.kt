@@ -29,6 +29,11 @@ class Prefs(context: Context) {
         return if (l in Content.LANGS) l else "en"
     }
 
+    /** Unsaved text in the gratitude journal composer. */
+    var journalDraft: String
+        get() = sp.getString("journal_draft", "") ?: ""
+        set(v) { sp.edit().putString("journal_draft", v).apply() }
+
     /** Show the day of the month inside each square of the activity grid. */
     var activityDates: Boolean
         get() = sp.getBoolean("activity_dates", false)

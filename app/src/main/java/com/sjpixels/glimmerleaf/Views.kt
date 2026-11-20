@@ -35,7 +35,7 @@ enum class Icon(val res: Int) {
     CHECK(R.drawable.ic_check), LOCK(R.drawable.ic_lock), HOME(R.drawable.ic_home), BOOK(R.drawable.ic_book),
     HISTORY(R.drawable.ic_history), CHART(R.drawable.ic_chart), GEAR(R.drawable.ic_gear), SPARK(R.drawable.ic_sparkle),
     CHEVRON(R.drawable.ic_chevron_right), CHEVRON_DOWN(R.drawable.ic_chevron_down), BELL(R.drawable.ic_bell),
-    HEART(R.drawable.ic_heart), SPEAKER(R.drawable.ic_speaker),
+    HEART(R.drawable.ic_heart), SPEAKER(R.drawable.ic_speaker), PLUS(R.drawable.ic_plus), EDIT(R.drawable.ic_edit),
 }
 
 /** Single-colour line illustrations from design/kit/svg/illustrations (72-unit grid). */

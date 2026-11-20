@@ -406,7 +406,18 @@ class MainActivity : Activity() {
 
     fun openPractice(day: Int) = push(PracticeScreen(this, day))
 
+    /** Which list the History tab shows: 0 journeys, 1 daily gratitude, 2 journal. */
+    var historySection = 0
+
+    fun openHistory(section: Int) {
+        historySection = section
+        selectTab(2)
+    }
+
     fun openRitual(id: String) = push(RitualScreen(this, id))
+
+    /** Leaves the current inner page (used after saving or deleting on an edit page). */
+    fun goBack() { handleBack() }
 
     private fun handleBack(): Boolean {
         if (overlay != null) { dismissOverlay(); return true }

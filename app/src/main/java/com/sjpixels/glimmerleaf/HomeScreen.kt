@@ -133,6 +133,31 @@ class HomeScreen(act: MainActivity) : Screen(act) {
             page.addView(row, ui.lp(l = -12, r = -12))
         }
 
+        // ---------------------------------------------------------------- every day: daily gratitude and journal
+        page.addView(ui.sectionTitle(c.t("every_day")))
+        val db = Db.get(act)
+        val todayDaily = db.daily(java.time.LocalDate.now().toString())
+        val journalToday = db.journalCountSince(Journey.millisOf(java.time.LocalDate.now()))
+        val everyDay = ui.row(Gravity.TOP)
+        val dailyCard = ui.card(16) {
+            addView(IconView(act, Icon.SPARK, p.accent, 24), ui.lp(ui.dp(24), ui.dp(24), b = 12))
+            addView(ui.h3(c.t("daily_title")))
+            addView(ui.muted(if (todayDaily != null) c.t("wins_thanks_n", "w" to todayDaily.winCount, "t" to todayDaily.thanksCount)
+                else c.t("daily_sub")), ui.lp(t = 4))
+        }
+        ui.clickable(dailyCard) { act.push(DailyScreen(act)) }
+        ui.pressScale(dailyCard)
+        val journalCardV = ui.card(16) {
+            addView(IconView(act, Icon.EDIT, p.accent, 24), ui.lp(ui.dp(24), ui.dp(24), b = 12))
+            addView(ui.h3(c.t("journal_title")))
+            addView(ui.muted(if (journalToday > 0) c.t("journal_today_n", "n" to journalToday) else c.t("journal_sub")), ui.lp(t = 4))
+        }
+        ui.clickable(journalCardV) { act.push(JournalScreen(act)) }
+        ui.pressScale(journalCardV)
+        everyDay.addView(dailyCard, ui.lp(0, MATCH, 1f, r = 4))
+        everyDay.addView(journalCardV, ui.lp(0, MATCH, 1f, l = 4))
+        page.addView(everyDay, ui.lp())
+
         // ---------------------------------------------------------------- rituals
         page.addView(ui.sectionTitle(c.t("rituals_title")))
         page.addView(ui.muted(c.t("rituals_hint")), ui.lp(b = 12, t = -4))

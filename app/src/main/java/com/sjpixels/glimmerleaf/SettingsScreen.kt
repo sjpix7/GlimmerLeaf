@@ -250,28 +250,6 @@ class SettingsScreen(act: MainActivity) : Screen(act) {
         return r
     }
 
-    private fun segmented(ui: Ui, options: List<Pair<String, String>>, selected: String, onPick: (String) -> Unit): View {
-        val p = ui.p
-        // Segmented choice: 48dp cells on surfaceAlt, selected accent/onAccent; labels wrap rather than clip.
-        val bar = ui.row {
-            setPadding(ui.dp(4), ui.dp(4), ui.dp(4), ui.dp(4))
-            background = rounded(p.surfaceAlt, ui.dpf(24), p.line, ui.dp(1))
-        }
-        options.forEachIndexed { i, (value, label) ->
-            val sel = value == selected
-            val t = ui.text(label, 14f, if (sel) p.onAccent else p.ink, Fonts.sansMedium, gravity = Gravity.CENTER, lineSp = 20f).apply {
-                minHeight = ui.dp(48)
-                setPadding(ui.dp(8), ui.dp(8), ui.dp(8), ui.dp(8))
-                background = rounded(if (sel) p.accent else 0, ui.dpf(20))
-                isSelected = sel
-                contentDescription = "$label, ${i + 1} / ${options.size}"
-            }
-            if (!sel) ui.clickable(t, ui.dpf(20)) { onPick(value) }
-            bar.addView(t, ui.lp(0, MATCH, 1f))
-        }
-        return bar
-    }
-
     // ------------------------------------------------------------ dialogs
 
     private fun pickLanguage() {

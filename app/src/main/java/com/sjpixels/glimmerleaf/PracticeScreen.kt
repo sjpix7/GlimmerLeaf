@@ -285,24 +285,16 @@ class PracticeScreen(act: MainActivity, private val dayNum: Int, private val aut
         sections.forEachIndexed { si, sec ->
             journalCard.addView(ui.h3(sec.prompt), ui.lp(t = if (si == 0) 0 else 20, b = 8))
             val saved = draft?.notes?.sections?.getOrNull(si)?.items ?: emptyList()
-            val list = ArrayList<EditText>()
             if (sec.multiline) {
                 val e = ui.input("", true, saved.getOrNull(0) ?: "")
                 watch(e)
                 journalCard.addView(e, ui.lp())
-                list += e
+                fields += listOf(e)
             } else {
-                for (k in 0 until sec.count) {
-                    val r = ui.row(Gravity.CENTER_VERTICAL)
-                    r.addView(ui.text("${k + 1}", 14f, p.muted, Fonts.sansMedium, gravity = Gravity.START, lineSp = 20f), ui.lp(ui.dp(24), WRAP))
-                    val e = ui.input("", false, saved.getOrNull(k) ?: "")
-                    watch(e)
-                    r.addView(e, ui.lp(0, WRAP, 1f))
-                    journalCard.addView(r, ui.lp(b = 8))
-                    list += e
-                }
+                // The day's count is a minimum; "+ Add another" adds as many more as wanted. The live list is
+                // kept so fields added later are saved too.
+                fields += numberedList(ui, journalCard, saved, sec.count) { watch(it) }
             }
-            fields += list
         }
         journalCard.addView(ui.h3(c.t("reflection_label")), ui.lp(t = 20, b = 8))
         val refl = ui.input(c.t("reflection_hint"), true, draft?.notes?.reflection ?: "")

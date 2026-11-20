@@ -10,6 +10,8 @@ class HistoryScreen(act: MainActivity) : Screen(act) {
     private val expandedCycles = HashSet<Long>()
     private val expandedDays = HashSet<String>()
     private var initialised = false
+    private var dailyLimit = 30
+    private var journalLimit = 20
 
     override fun build(ui: Ui): View {
         val c = ui.c
@@ -20,6 +22,23 @@ class HistoryScreen(act: MainActivity) : Screen(act) {
 
         page.addView(ui.eyebrow(c.t("tab_history")), ui.lp(t = 8))
         page.addView(ui.h1(c.t("history_title")), ui.lp(t = 4, b = 16))
+
+        // Journeys / Daily gratitude / Journal
+        page.addView(segmented(ui, listOf("0" to c.t("history_journeys"), "1" to c.t("history_daily"), "2" to c.t("history_journal")),
+            act.historySection.toString()) {
+            act.historySection = it.toInt()
+            act.refresh()
+        }, ui.lp(b = 16))
+        when (act.historySection) {
+            1 -> {
+                addDailyList(act, ui, page, db.dailyAll(), dailyLimit) { dailyLimit += 30; act.refresh() }
+                return ui.page(page)
+            }
+            2 -> {
+                addJournalList(act, ui, page, journalLimit) { journalLimit += 20; act.refresh() }
+                return ui.page(page)
+            }
+        }
 
         if (!initialised) {
             cycles.firstOrNull()?.let { expandedCycles += it.id }

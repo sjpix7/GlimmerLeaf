@@ -78,8 +78,27 @@ data class Session(
 
 data class Draft(val notes: Notes, val mood: Int)
 
-/** Local SQLite storage for journeys, completed sessions with notes, and unsaved drafts. */
-class Db private constructor(ctx: Context) : SQLiteOpenHelper(ctx, "gratitude.db", null, 1) {
+/** One day's small wins and thanks. [date] is ISO yyyy-MM-dd in local time. */
+data class DailyEntry(val date: String, val wins: List<String>, val thanks: List<String>, val updatedAt: Long) {
+    val winCount get() = wins.count { it.isNotBlank() }
+    val thanksCount get() = thanks.count { it.isNotBlank() }
+}
+
+/** A free-form gratitude journal entry; any number per day. */
+data class JournalEntry(val id: Long, val createdAt: Long, val updatedAt: Long, val text: String)
+
+private fun List<String>.toJsonArray(): String = JSONArray().also { a -> forEach { a.put(it) } }.toString()
+
+private fun jsonList(s: String?): List<String> = try {
+    val a = JSONArray(s ?: "[]")
+    (0 until a.length()).map { a.optString(it) }
+} catch (e: Exception) { emptyList() }
+
+/**
+ * Local SQLite storage for journeys, completed sessions with notes, unsaved drafts,
+ * daily wins and thanks, and the free-form gratitude journal.
+ */
+class Db private constructor(ctx: Context) : SQLiteOpenHelper(ctx, "gratitude.db", null, 2) {
 
     companion object {
         @Volatile
@@ -105,10 +124,24 @@ class Db private constructor(ctx: Context) : SQLiteOpenHelper(ctx, "gratitude.db
             "CREATE TABLE drafts (day INTEGER PRIMARY KEY, notes TEXT NOT NULL, mood INTEGER NOT NULL DEFAULT 0, " +
                 "updated_at INTEGER NOT NULL)"
         )
+        createV2(db)
+    }
+
+    /** Version 2: daily wins and thanks, and the gratitude journal. */
+    private fun createV2(db: SQLiteDatabase) {
+        db.execSQL(
+            "CREATE TABLE IF NOT EXISTS daily (date TEXT PRIMARY KEY, wins TEXT NOT NULL DEFAULT '[]', " +
+                "thanks TEXT NOT NULL DEFAULT '[]', updated_at INTEGER NOT NULL)"
+        )
+        db.execSQL(
+            "CREATE TABLE IF NOT EXISTS journal (id INTEGER PRIMARY KEY AUTOINCREMENT, created_at INTEGER NOT NULL, " +
+                "updated_at INTEGER NOT NULL, text TEXT NOT NULL)"
+        )
+        db.execSQL("CREATE INDEX IF NOT EXISTS idx_journal_created ON journal(created_at)")
     }
 
     override fun onUpgrade(db: SQLiteDatabase, oldVersion: Int, newVersion: Int) {
-        // Version 1 is the first schema. Add migrations here in future versions.
+        if (oldVersion < 2) createV2(db)
     }
 
     private fun cycleFrom(c: Cursor): Cycle = Cycle(
@@ -259,5 +292,86 @@ class Db private constructor(ctx: Context) : SQLiteOpenHelper(ctx, "gratitude.db
 
     fun clearDrafts() {
         writableDatabase.delete("drafts", null, null)
+    }
+
+    // ------------------------------------------------------------ daily wins and thanks
+
+    private fun dailyFrom(c: Cursor) = DailyEntry(c.getString(0), jsonList(c.getString(1)), jsonList(c.getString(2)), c.getLong(3))
+
+    fun daily(date: String): DailyEntry? =
+        readableDatabase.rawQuery("SELECT date, wins, thanks, updated_at FROM daily WHERE date = ?", arrayOf(date))
+            .use { c -> if (c.moveToFirst()) dailyFrom(c) else null }
+
+    /** Newest day first. */
+    fun dailyAll(): List<DailyEntry> =
+        readableDatabase.rawQuery("SELECT date, wins, thanks, updated_at FROM daily ORDER BY date DESC", null).use { c ->
+            val out = ArrayList<DailyEntry>()
+            while (c.moveToNext()) out += dailyFrom(c)
+            out
+        }
+
+    /** Saves a day's lists; a day with nothing written is removed. */
+    fun saveDaily(date: String, wins: List<String>, thanks: List<String>, now: Long) {
+        if (wins.all { it.isBlank() } && thanks.all { it.isBlank() }) {
+            deleteDaily(date)
+            return
+        }
+        val cv = ContentValues().apply {
+            put("date", date)
+            put("wins", wins.toJsonArray())
+            put("thanks", thanks.toJsonArray())
+            put("updated_at", now)
+        }
+        writableDatabase.insertWithOnConflict("daily", null, cv, SQLiteDatabase.CONFLICT_REPLACE)
+    }
+
+    fun deleteDaily(date: String) {
+        writableDatabase.delete("daily", "date = ?", arrayOf(date))
+    }
+
+    // ------------------------------------------------------------ gratitude journal
+
+    private fun journalFrom(c: Cursor) = JournalEntry(c.getLong(0), c.getLong(1), c.getLong(2), c.getString(3))
+
+    fun journalCount(): Int =
+        readableDatabase.rawQuery("SELECT COUNT(*) FROM journal", null).use { c -> if (c.moveToFirst()) c.getInt(0) else 0 }
+
+    fun journalCountSince(fromMs: Long): Int =
+        readableDatabase.rawQuery("SELECT COUNT(*) FROM journal WHERE created_at >= ?", arrayOf(fromMs.toString()))
+            .use { c -> if (c.moveToFirst()) c.getInt(0) else 0 }
+
+    /** Newest first, [limit] entries. */
+    fun journalEntries(limit: Int): List<JournalEntry> =
+        readableDatabase.rawQuery(
+            "SELECT id, created_at, updated_at, text FROM journal ORDER BY created_at DESC LIMIT ?", arrayOf(limit.toString())
+        ).use { c ->
+            val out = ArrayList<JournalEntry>()
+            while (c.moveToNext()) out += journalFrom(c)
+            out
+        }
+
+    fun journalEntry(id: Long): JournalEntry? =
+        readableDatabase.rawQuery("SELECT id, created_at, updated_at, text FROM journal WHERE id = ?", arrayOf(id.toString()))
+            .use { c -> if (c.moveToFirst()) journalFrom(c) else null }
+
+    fun insertJournal(text: String, now: Long): Long {
+        val cv = ContentValues().apply {
+            put("created_at", now)
+            put("updated_at", now)
+            put("text", text)
+        }
+        return writableDatabase.insert("journal", null, cv)
+    }
+
+    fun updateJournal(id: Long, text: String, now: Long) {
+        val cv = ContentValues().apply {
+            put("updated_at", now)
+            put("text", text)
+        }
+        writableDatabase.update("journal", cv, "id = ?", arrayOf(id.toString()))
+    }
+
+    fun deleteJournal(id: Long) {
+        writableDatabase.delete("journal", "id = ?", arrayOf(id.toString()))
     }
 }
