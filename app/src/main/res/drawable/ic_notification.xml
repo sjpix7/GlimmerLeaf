@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!-- Generated from design/kit/svg/brand/notification.svg. -->
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
     android:width="24dp" android:height="24dp"
     android:viewportWidth="24" android:viewportHeight="24">
-    <path android:fillColor="#FFFFFFFF"
-        android:pathData="M12,2C12.8,8 16,11.2 22,12C16,12.8 12.8,16 12,22C11.2,16 8,12.8 2,12C8,11.2 11.2,8 12,2Z" />
+    <path android:fillColor="#FFFFFF" android:fillType="evenOdd"
+        android:pathData="M2 10Q7 7 11 11V21Q7 17 2 18ZM13 11Q17 7 22 10V18Q17 17 13 21ZM12 9Q11 3 20 2Q19 8 12 9Z" />
 </vector>

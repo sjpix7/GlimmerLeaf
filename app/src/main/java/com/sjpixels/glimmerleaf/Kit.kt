@@ -34,6 +34,9 @@ object Fonts {
     val sans: Typeface = Typeface.create("sans-serif", Typeface.NORMAL)
     val sansMedium: Typeface = Typeface.create("sans-serif-medium", Typeface.NORMAL)
     val sansBold: Typeface = Typeface.create("sans-serif", Typeface.BOLD)
+    /** Card titles: serif medium (weight 500) where the platform supports weights, else regular. */
+    val serifMedium: Typeface =
+        if (android.os.Build.VERSION.SDK_INT >= 28) Typeface.create(serif, 500, false) else serif
 }
 
 fun Context.dp(v: Number): Int = (v.toFloat() * resources.displayMetrics.density + 0.5f).toInt()
@@ -100,34 +103,78 @@ class Ui(val ctx: Context, val p: Pal, val c: ContentPack) {
         font: Typeface = Fonts.sans,
         lineMult: Float = 1.25f,
         gravity: Int = Gravity.START,
+        lineSp: Float = 0f,
     ): TextView = TextView(ctx).apply {
         text = s
         setTextSize(TypedValue.COMPLEX_UNIT_SP, size)
         setTextColor(color)
         typeface = font
-        setLineSpacing(0f, lineMult)
+        // Devanagari and CJK get 4sp of extra leading (design kit, typography notes).
+        val extra = if (c.lang in TALL_SCRIPTS) 4f else 0f
+        if (lineSp > 0f && android.os.Build.VERSION.SDK_INT >= 28) {
+            lineHeight = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, lineSp + extra, ctx.resources.displayMetrics).toInt()
+        } else if (lineSp > 0f) {
+            setLineSpacing(0f, (lineSp + extra) / (size * 1.17f))
+        } else {
+            setLineSpacing(0f, lineMult + extra / size)
+        }
         this.gravity = gravity
+        hyphenationFrequency = android.text.Layout.HYPHENATION_FREQUENCY_NONE
     }
 
-    fun eyebrow(s: String, color: Int = p.accent) = text(s.uppercase(), 11.5f, color, Fonts.sansBold).apply {
-        letterSpacing = 0.12f
+    // Type scale from design/kit (size / line height in sp).
+    fun eyebrow(s: String, color: Int = p.muted) = text(s, 12f, color, Fonts.sansMedium, lineSp = 16f).apply {
+        letterSpacing = 0.5f / 12f
     }
 
-    fun h1(s: String) = text(s, 28f, p.ink, Fonts.serifBold, 1.12f)
-    fun h2(s: String) = text(s, 20f, p.ink, Fonts.serifBold, 1.15f)
-    fun h3(s: String) = text(s, 16.5f, p.ink, Fonts.sansMedium, 1.2f)
-    fun body(s: String) = text(s, 16f, p.ink, Fonts.sans, 1.42f)
-    fun muted(s: String, size: Float = 13.5f) = text(s, size, p.muted, Fonts.sans, 1.3f)
+    /** Page title, serif bold 30/36. */
+    fun h1(s: String) = text(s, 30f, p.ink, heading(Fonts.serifBold), lineSp = 36f)
+    /** Hero and section title, serif bold 24/32. */
+    fun h2(s: String) = text(s, 24f, p.ink, heading(Fonts.serifBold), lineSp = 32f)
+    /** Card title, serif medium 20/28. */
+    fun cardTitle(s: String) = text(s, 20f, p.ink, heading(Fonts.serifMedium), lineSp = 28f)
+    /** Row title, sans medium 16/24. */
+    fun h3(s: String) = text(s, 16f, p.ink, Fonts.sansMedium, lineSp = 24f)
+    /** Theme line and affirmation, serif italic 17/26. */
+    fun themeLine(s: String, color: Int = p.muted) = text(s, 17f, color, Fonts.serifItalic, lineSp = 26f)
+    /** Body and input, sans 16/24. */
+    fun body(s: String) = text(s, 16f, p.ink, Fonts.sans, lineSp = 24f)
+    /** Secondary text, sans 14/20 (or caption 12/16). */
+    fun muted(s: String, size: Float = 14f) = text(s, size, p.muted, Fonts.sans, lineSp = if (size <= 12.5f) 16f else 20f)
+
+    /** CJK headings use medium weight instead of bold (design kit, typography notes). */
+    private fun heading(tf: Typeface): Typeface =
+        if (c.lang in CJK && tf == Fonts.serifBold) Fonts.serifMedium else tf
 
     fun ripple(content: Drawable?, mask: Drawable?): RippleDrawable =
         RippleDrawable(ColorStateList.valueOf(withAlpha(p.accent, 50)), content, mask)
 
-    fun card(pad: Int = 18, color: Int = p.surface, block: LinearLayout.() -> Unit = {}): LinearLayout =
+    /** Card: 16dp radius, surface with a 1dp line border. */
+    fun card(pad: Int = 16, color: Int = p.surface, block: LinearLayout.() -> Unit = {}): LinearLayout =
         col(pad, pad, block).apply {
-            background = rounded(color, dpf(22), p.line, dp(1))
+            background = rounded(color, dpf(16), p.line, dp(1))
         }
 
-    fun clickable(v: View, radius: Float = dpf(22), onClick: () -> Unit) {
+    /** Hero: 24dp radius, 20dp padding, surface with the glow recipe and three sparkles. */
+    fun hero(seed: Int = 3, block: LinearLayout.() -> Unit = {}): LinearLayout =
+        col(20, 20, block).apply {
+            background = GlowDrawable(p, dpf(24), ctx.resources.displayMetrics.density, seed)
+        }
+
+    /** Press feedback from the kit: scale 1 → 0.98 over 80ms, back in 120ms. */
+    fun pressScale(v: View) {
+        v.setOnTouchListener { view, e ->
+            when (e.actionMasked) {
+                android.view.MotionEvent.ACTION_DOWN ->
+                    view.animate().scaleX(0.98f).scaleY(0.98f).setDuration(80).setInterpolator(kitEase()).start()
+                android.view.MotionEvent.ACTION_UP, android.view.MotionEvent.ACTION_CANCEL ->
+                    view.animate().scaleX(1f).scaleY(1f).setDuration(120).setInterpolator(kitEase()).start()
+            }
+            false
+        }
+    }
+
+    fun clickable(v: View, radius: Float = dpf(16), onClick: () -> Unit) {
         val bg = v.background
         v.background = ripple(bg, rounded(Color.WHITE, radius))
         v.isClickable = true
@@ -135,36 +182,46 @@ class Ui(val ctx: Context, val p: Pal, val c: ContentPack) {
         v.setOnClickListener { onClick() }
     }
 
+    /**
+     * Buttons: minimum 48dp tall, 16 × 12 padding, 24dp pill radius, optional 20dp icon with an 8dp gap.
+     * Primary accent/onAccent; secondary surface/ink with a muted outline; ghost transparent/ink;
+     * danger surface/danger outline. Long labels wrap and stay centred.
+     */
     fun button(label: String, kind: Btn = Btn.PRIMARY, icon: Icon? = null, onClick: () -> Unit): LinearLayout {
         val (bgColor, fg, stroke) = when (kind) {
             Btn.PRIMARY -> Triple(p.accent, p.onAccent, 0)
-            Btn.SECONDARY -> Triple(p.accentSoft, p.ink, 0)
-            Btn.GHOST -> Triple(Color.TRANSPARENT, p.accent, p.line)
-            Btn.DANGER -> Triple(Color.TRANSPARENT, p.danger, withAlpha(p.danger, 120))
+            Btn.SECONDARY -> Triple(p.surface, p.ink, p.muted)
+            Btn.GHOST -> Triple(Color.TRANSPARENT, p.ink, 0)
+            Btn.DANGER -> Triple(p.surface, p.danger, p.danger)
         }
         return row(Gravity.CENTER) {
             minimumHeight = dp(48)
-            setPadding(dp(20), dp(10), dp(20), dp(10))
-            val shape = rounded(bgColor, dpf(26), stroke, if (stroke != 0) dp(1) else 0)
-            background = ripple(shape, rounded(Color.WHITE, dpf(26)))
+            setPadding(dp(16), dp(12), dp(16), dp(12))
+            val shape = rounded(bgColor, dpf(24), stroke, if (stroke != 0) dp(1) else 0)
+            background = RippleDrawable(ColorStateList.valueOf(withAlpha(if (kind == Btn.PRIMARY) p.onAccent else p.ink, 31)), shape, rounded(Color.WHITE, dpf(24)))
             if (icon != null) {
                 addView(IconView(ctx, icon, fg, 20), lp(dp(20), dp(20), r = 8))
             }
-            addView(text(label, 15f, fg, Fonts.sansMedium, 1.1f, Gravity.CENTER))
+            addView(text(label, 16f, fg, Fonts.sansMedium, gravity = Gravity.CENTER, lineSp = 24f))
             isClickable = true
             isFocusable = true
             contentDescription = label
             setOnClickListener { onClick() }
+            pressScale(this)
         }
     }
 
-    fun chip(label: String, bg: Int = p.accentSoft, fg: Int = p.ink): TextView =
-        text(label, 12.5f, fg, Fonts.sansMedium, 1.1f).apply {
-            setPadding(dp(10), dp(4), dp(10), dp(5))
-            background = rounded(bg, dpf(14))
+    /** Chip: 24dp minimum height, 8 × 4 padding, 12dp radius, accentSoft/ink. */
+    fun chip(label: String, bg: Int = p.accentSoft, fg: Int = p.ink, icon: Icon? = null): LinearLayout =
+        row {
+            minimumHeight = dp(24)
+            setPadding(dp(8), dp(4), dp(8), dp(4))
+            background = rounded(bg, dpf(12))
+            if (icon != null) addView(IconView(ctx, icon, fg, 14), lp(dp(14), dp(14), r = 4))
+            addView(text(label, 12f, fg, Fonts.sansMedium, lineSp = 16f))
         }
 
-    fun iconButton(icon: Icon, desc: String, color: Int = p.ink, size: Int = 44, iconSize: Int = 22, bg: Int = Color.TRANSPARENT, onClick: () -> Unit): FrameLayout =
+    fun iconButton(icon: Icon, desc: String, color: Int = p.ink, size: Int = 48, iconSize: Int = 24, bg: Int = Color.TRANSPARENT, onClick: () -> Unit): FrameLayout =
         FrameLayout(ctx).apply {
             val icv = IconView(ctx, icon, color, iconSize)
             addView(icv, FrameLayout.LayoutParams(dp(iconSize), dp(iconSize), Gravity.CENTER))
@@ -199,19 +256,27 @@ class Ui(val ctx: Context, val p: Pal, val c: ContentPack) {
         addView(content, FrameLayout.LayoutParams(MATCH, WRAP))
     }
 
-    fun screen(): LinearLayout = col(20, 8)
+    /** Page column: 20dp side margins. */
+    fun screen(): LinearLayout = col(20, 12)
 
-    fun sectionTitle(s: String, top: Int = 26): TextView = h2(s).apply { layoutParams = lp(t = top, b = 12) }
+    fun sectionTitle(s: String, top: Int = 28): TextView = h2(s).apply { layoutParams = lp(t = top, b = 12) }
 
     fun input(hint: String, multiline: Boolean, value: String): EditText = EditText(ctx).apply {
         setText(value)
         this.hint = hint
         setHintTextColor(withAlpha(p.muted, 150))
         setTextColor(p.ink)
-        setTextSize(TypedValue.COMPLEX_UNIT_SP, 15.5f)
+        setTextSize(TypedValue.COMPLEX_UNIT_SP, 16f)
         typeface = Fonts.sans
-        background = rounded(p.surfaceAlt, dpf(14), p.line, dp(1))
-        setPadding(dp(14), dp(11), dp(14), dp(11))
+        // Numbered field: 48dp minimum (96dp multiline), 12dp inset, 8dp radius, muted border; accent when focused.
+        val idle = rounded(p.surfaceAlt, dpf(8), p.muted, dp(1))
+        val focused = rounded(p.surfaceAlt, dpf(8), p.accent, dp(2))
+        background = android.graphics.drawable.StateListDrawable().apply {
+            addState(intArrayOf(android.R.attr.state_focused), focused)
+            addState(intArrayOf(), idle)
+        }
+        minHeight = dp(if (multiline) 96 else 48)
+        setPadding(dp(12), dp(12), dp(12), dp(12))
         if (multiline) {
             inputType = InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_FLAG_MULTI_LINE or InputType.TYPE_TEXT_FLAG_CAP_SENTENCES
             minLines = 4
@@ -265,5 +330,9 @@ class Ui(val ctx: Context, val p: Pal, val c: ContentPack) {
         return time(ms)
     }
 }
+
+/** Languages whose scripts need extra leading. */
+val TALL_SCRIPTS = setOf("hi", "ja", "ko", "zh")
+val CJK = setOf("ja", "ko", "zh")
 
 val MOODS = listOf("😔", "😐", "🙂", "😊", "🤩")

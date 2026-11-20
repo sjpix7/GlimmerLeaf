@@ -80,7 +80,8 @@ class MainActivity : Activity() {
     private lateinit var root: FrameLayout
     private lateinit var column: LinearLayout
     private lateinit var host: FrameLayout
-    private lateinit var nav: LinearLayout
+    private lateinit var nav: View
+    private lateinit var navRow: LinearLayout
     private lateinit var leftSlot: FrameLayout
     private var overlay: View? = null
 
@@ -163,7 +164,7 @@ class MainActivity : Activity() {
         column = LinearLayout(this).apply { orientation = LinearLayout.VERTICAL }
         root.addView(column, FrameLayout.LayoutParams(MATCH, MATCH))
 
-        column.addView(buildTopBar(ui), LinearLayout.LayoutParams(MATCH, dp(54)))
+        column.addView(buildTopBar(ui), LinearLayout.LayoutParams(MATCH, WRAP))
         host = FrameLayout(this)
         column.addView(host, LinearLayout.LayoutParams(MATCH, 0, 1f))
         nav = buildNav(ui)
@@ -173,11 +174,16 @@ class MainActivity : Activity() {
         applySystemBars()
     }
 
-    private fun buildTopBar(ui: Ui): FrameLayout {
-        val bar = FrameLayout(this)
-        bar.setPadding(dp(6), 0, dp(10), 0)
+    private fun buildTopBar(ui: Ui): LinearLayout {
+        // Top bar: 56dp minimum; 48dp brand/Up slot, centred credit, 56dp day/night control.
+        val bar = LinearLayout(this).apply {
+            orientation = LinearLayout.HORIZONTAL
+            gravity = Gravity.CENTER_VERTICAL
+            minimumHeight = dp(56)
+            setPadding(dp(8), 0, dp(8), 0)
+        }
         leftSlot = FrameLayout(this)
-        bar.addView(leftSlot, FrameLayout.LayoutParams(dp(44), dp(44), Gravity.START or Gravity.CENTER_VERTICAL))
+        bar.addView(leftSlot, LinearLayout.LayoutParams(dp(48), dp(48)))
 
         val credit = TextView(this).apply {
             val prefix = "Created with Love by "
@@ -186,28 +192,28 @@ class MainActivity : Activity() {
             s.setSpan(object : ClickableSpan() {
                 override fun onClick(widget: View) = openUrl(CREDIT_URL)
                 override fun updateDrawState(ds: TextPaint) {
-                    ds.color = pal.accent
+                    ds.color = pal.ink
                     ds.isUnderlineText = true
-                    ds.isFakeBoldText = true
                 }
             }, prefix.length, prefix.length + brand.length, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
             text = s
             movementMethod = LinkMovementMethod.getInstance()
             highlightColor = Color.TRANSPARENT
-            textSize = 11.5f
+            textSize = 12f
             setTextColor(pal.muted)
             typeface = Fonts.sans
             gravity = Gravity.CENTER
-            maxLines = 1
+            minHeight = dp(48)
+            setPadding(dp(4), 0, dp(4), 0)
         }
-        bar.addView(credit, FrameLayout.LayoutParams(WRAP, WRAP, Gravity.CENTER))
+        bar.addView(credit, LinearLayout.LayoutParams(0, WRAP, 1f))
 
         val toggle = DayNightToggle(this, pal, prefs.dark) { dark ->
             prefs.dark = dark
             applyTheme()
         }
         toggle.contentDescription = pack.t("night_mode")
-        bar.addView(toggle, FrameLayout.LayoutParams(WRAP, WRAP, Gravity.END or Gravity.CENTER_VERTICAL))
+        bar.addView(toggle, LinearLayout.LayoutParams(WRAP, WRAP))
         return bar
     }
 
@@ -215,11 +221,14 @@ class MainActivity : Activity() {
         val ui = ui()
         leftSlot.removeAllViews()
         if (stack.isNotEmpty()) {
-            val b = ui.iconButton(Icon.BACK, pack.t("close"), pal.ink, 44, 22) { handleBack() }
-            leftSlot.addView(b, FrameLayout.LayoutParams(dp(44), dp(44), Gravity.CENTER))
+            val b = ui.iconButton(Icon.BACK, pack.t("close"), pal.ink, 48, 24) { handleBack() }
+            leftSlot.addView(b, FrameLayout.LayoutParams(dp(48), dp(48), Gravity.CENTER))
         } else {
-            val spark = IconView(this, Icon.SPARK, pal.accent, 18)
-            leftSlot.addView(spark, FrameLayout.LayoutParams(dp(18), dp(18), Gravity.CENTER))
+            val mark = android.widget.ImageView(this).apply {
+                setImageResource(R.drawable.brand_mark)
+                importantForAccessibility = View.IMPORTANT_FOR_ACCESSIBILITY_NO
+            }
+            leftSlot.addView(mark, FrameLayout.LayoutParams(dp(28), dp(28), Gravity.CENTER))
         }
     }
 
@@ -233,56 +242,73 @@ class MainActivity : Activity() {
         NavItem(Icon.GEAR, "tab_settings"),
     )
 
-    private fun buildNav(ui: Ui): LinearLayout {
-        val bar = LinearLayout(this).apply {
+    /**
+     * Bottom nav: 64dp minimum on surface with a top hairline. 24dp icons, 4dp gap, 11sp labels;
+     * the selected tab has a 48×32 accentSoft pill and an ink icon. Tabs share the width equally;
+     * if a label (for example "Einstellungen") doesn't fit, the strip scrolls sideways instead of clipping.
+     */
+    private fun buildNav(ui: Ui): View {
+        val row = LinearLayout(this).apply {
             orientation = LinearLayout.HORIZONTAL
-            setPadding(dp(6), dp(6), dp(6), dp(8))
-            background = android.graphics.drawable.LayerDrawable(
-                arrayOf(
-                    android.graphics.drawable.ColorDrawable(withAlpha(pal.surface, 245)),
-                    android.graphics.drawable.ColorDrawable(pal.line),
-                )
-            ).apply { setLayerHeight(1, dp(1)) }
+            setPadding(dp(4), dp(6), dp(4), dp(6))
         }
+        navRow = row
         navItems.forEachIndexed { i, item ->
             val cell = LinearLayout(this).apply {
                 orientation = LinearLayout.VERTICAL
-                gravity = Gravity.CENTER_HORIZONTAL
-                setPadding(0, dp(2), 0, dp(2))
+                gravity = Gravity.CENTER
+                minimumHeight = dp(52)
             }
             val pill = FrameLayout(this)
-            val icon = IconView(this, item.icon, pal.muted, 22)
-            pill.addView(icon, FrameLayout.LayoutParams(dp(22), dp(22), Gravity.CENTER))
-            cell.addView(pill, LinearLayout.LayoutParams(dp(58), dp(30)))
-            val label = ui.text(pack.t(item.key), 11f, pal.muted, Fonts.sansMedium, 1f, Gravity.CENTER).apply {
+            val icon = IconView(this, item.icon, pal.muted, 24)
+            pill.addView(icon, FrameLayout.LayoutParams(dp(24), dp(24), Gravity.CENTER))
+            cell.addView(pill, LinearLayout.LayoutParams(dp(48), dp(32)))
+            val label = ui.text(pack.t(item.key), 11f, pal.muted, Fonts.sansMedium, gravity = Gravity.CENTER, lineSp = 16f).apply {
                 maxLines = 1
-                setPadding(0, dp(3), 0, 0)
+                setPadding(dp(8), 0, dp(8), 0)
             }
-            cell.addView(label, LinearLayout.LayoutParams(WRAP, WRAP))
-            cell.background = ui.ripple(null, ui.rounded(Color.WHITE))
+            cell.addView(label, LinearLayout.LayoutParams(WRAP, WRAP).apply { topMargin = dp(4) })
+            cell.background = ui.ripple(null, rounded(Color.WHITE, dpf(16)))
             cell.isClickable = true
+            cell.isFocusable = true
             cell.contentDescription = pack.t(item.key)
             cell.setOnClickListener {
                 it.performHapticFeedback(HapticFeedbackConstants.CLOCK_TICK)
                 selectTab(i)
             }
             cell.tag = Triple(pill, icon, label)
-            bar.addView(cell, LinearLayout.LayoutParams(0, WRAP, 1f))
+            row.addView(cell, LinearLayout.LayoutParams(WRAP, WRAP, 1f))
         }
-        return bar
+        return android.widget.HorizontalScrollView(this).apply {
+            isFillViewport = true
+            isHorizontalScrollBarEnabled = false
+            overScrollMode = View.OVER_SCROLL_NEVER
+            background = android.graphics.drawable.LayerDrawable(
+                arrayOf(
+                    android.graphics.drawable.ColorDrawable(pal.surface),
+                    android.graphics.drawable.ColorDrawable(pal.line),
+                )
+            ).apply { setLayerHeight(1, dp(1)) }
+            minimumHeight = dp(64)
+            addView(row, FrameLayout.LayoutParams(MATCH, WRAP))
+        }
     }
 
-    private fun Ui.rounded(color: Int) = rounded(color, dpf(18))
-
     private fun updateNav() {
-        for (i in 0 until nav.childCount) {
+        for (i in 0 until navRow.childCount) {
+            val cell = navRow.getChildAt(i)
             @Suppress("UNCHECKED_CAST")
-            val parts = nav.getChildAt(i).tag as Triple<FrameLayout, IconView, TextView>
+            val parts = cell.tag as Triple<FrameLayout, IconView, TextView>
             val (pill, icon, label) = parts
             val sel = i == tab
-            pill.background = if (sel) rounded(pal.accentSoft, dpf(15)) else null
-            icon.color = if (sel) pal.accent else pal.muted
+            pill.background = if (sel) rounded(pal.accentSoft, dpf(16)) else null
+            icon.color = if (sel) pal.ink else pal.muted
             label.setTextColor(if (sel) pal.ink else pal.muted)
+            cell.isSelected = sel
+            if (sel) (nav as? android.widget.HorizontalScrollView)?.post {
+                (nav as android.widget.HorizontalScrollView).requestChildRectangleOnScreen(navRow,
+                    android.graphics.Rect(cell.left, 0, cell.right, cell.height), false)
+            }
         }
     }
 
@@ -443,11 +469,38 @@ class MainActivity : Activity() {
     )
 
     fun styleDialog(d: AlertDialog) {
-        d.window?.setBackgroundDrawable(rounded(pal.surface, dpf(24)))
+        d.window?.setBackgroundDrawable(rounded(pal.surface, dpf(20)))
         for (b in intArrayOf(AlertDialog.BUTTON_POSITIVE, AlertDialog.BUTTON_NEGATIVE, AlertDialog.BUTTON_NEUTRAL)) {
             d.getButton(b)?.setTextColor(pal.accent)
         }
     }
+
+    /** Single-choice rows whose radio buttons use the theme accent instead of the platform default. */
+    fun choiceAdapter(items: Array<String>): android.widget.ArrayAdapter<String> =
+        object : android.widget.ArrayAdapter<String>(this, android.R.layout.simple_list_item_single_choice, items) {
+            override fun getView(position: Int, convertView: View?, parent: android.view.ViewGroup): View {
+                val v = super.getView(position, convertView, parent)
+                (v as? android.widget.CheckedTextView)?.apply {
+                    layoutParams = android.widget.AbsListView.LayoutParams(MATCH, WRAP)
+                    if (getTag(R.id.choice_styled) == null) {
+                        setTag(R.id.choice_styled, true)
+                        // Radio at the start, like the platform list, tinted with the theme accent.
+                        val a = context.obtainStyledAttributes(intArrayOf(android.R.attr.listChoiceIndicatorSingle))
+                        val radio = a.getDrawable(0)?.mutate()
+                        a.recycle()
+                        radio?.setTintList(android.content.res.ColorStateList.valueOf(pal.accent))
+                        checkMarkDrawable = null
+                        setCompoundDrawablesRelativeWithIntrinsicBounds(radio, null, null, null)
+                        compoundDrawablePadding = dp(20)
+                        setPaddingRelative(dp(20), dp(8), dp(20), dp(8))
+                        setTextColor(pal.ink)
+                        textSize = 16f
+                        minHeight = dp(48)
+                    }
+                }
+                return v
+            }
+        }
 
     fun confirm(message: String, positive: String, danger: Boolean = false, title: String? = null, onYes: () -> Unit) {
         val b = dialogBuilder().setMessage(message)
@@ -500,36 +553,40 @@ class MainActivity : Activity() {
             else -> pack.t("celebrate_again", "n" to result.day)
         }
         val layer = FrameLayout(this).apply {
-            setBackgroundColor(withAlpha(if (pal.dark) Color.BLACK else pal.ink, 120))
+            setBackgroundColor(withAlpha(Color.BLACK, 133))
             isClickable = true
             alpha = 0f
         }
-        val confetti = ConfettiView(this, intArrayOf(pal.accent, pal.glow, pal.accentSoft, blend(pal.accent, Color.WHITE, 0.4f), 0xFFE9857A.toInt(), 0xFF8FCB9B.toInt()))
-        layer.addView(confetti, FrameLayout.LayoutParams(MATCH, MATCH))
-
-        val card = ui.col(26, 26).apply {
+        val big = result.cycleCompleted
+        val card = ui.col(20, 24).apply {
             gravity = Gravity.CENTER_HORIZONTAL
-            background = GlowDrawable(pal, dpf(28), resources.displayMetrics.density, 11)
-            elevation = dpf(12)
+            background = GlowDrawable(pal, dpf(24), resources.displayMetrics.density, 11)
+            elevation = dpf(8)
             clipToOutline = true
         }
-        card.addView(IconView(this, if (result.cycleCompleted) Icon.HEART else Icon.SPARK, pal.accent, 44), ui.lp(dp(44), dp(44), b = 10))
-        card.addView(ui.text(title, 32f, pal.ink, Fonts.serifBold, 1.1f, Gravity.CENTER), ui.lp(WRAP, WRAP, b = 8))
-        card.addView(ui.text(body, 16f, pal.ink, Fonts.sans, 1.4f, Gravity.CENTER), ui.lp(MATCH, WRAP, b = 6))
-        card.addView(ui.text(d.affirmation, 14.5f, pal.muted, Fonts.serifItalic, 1.35f, Gravity.CENTER), ui.lp(MATCH, WRAP, t = 4, b = 20))
+        card.addView(IconView(this, if (big) Icon.HEART else Icon.SPARK, pal.accent, 40), ui.lp(dp(40), dp(40), b = 12))
+        card.addView(ui.text(title, if (big) 32f else 28f, pal.ink, Fonts.serifBold, gravity = Gravity.CENTER, lineSp = if (big) 40f else 36f), ui.lp(MATCH, WRAP, b = 8))
+        card.addView(ui.text(body, 16f, pal.ink, Fonts.sans, gravity = Gravity.CENTER, lineSp = 24f), ui.lp(MATCH, WRAP, b = 8))
+        card.addView(ui.text(d.affirmation, 17f, pal.muted, Fonts.serifItalic, gravity = Gravity.CENTER, lineSp = 26f), ui.lp(MATCH, WRAP, b = 20))
         card.addView(ui.button(pack.t("continue")) { dismissOverlay() }, ui.lp(MATCH, WRAP))
         layer.addView(card, FrameLayout.LayoutParams(MATCH, WRAP, Gravity.CENTER).apply {
-            leftMargin = dp(28); rightMargin = dp(28)
+            leftMargin = dp(24); rightMargin = dp(24)
         })
+        // Particles burst from behind the card in theme colours.
+        val confetti = ConfettiView(this, intArrayOf(pal.accent, pal.glow, pal.accentSoft, pal.muted))
+        layer.addView(confetti, 0, FrameLayout.LayoutParams(MATCH, MATCH))
         root.addView(layer, FrameLayout.LayoutParams(MATCH, MATCH))
         overlay = layer
         updateBackHandling()
 
-        card.scaleX = 0.85f
-        card.scaleY = 0.85f
-        layer.animate().alpha(1f).setDuration(220).start()
-        card.animate().scaleX(1f).scaleY(1f).setDuration(420).setInterpolator(android.view.animation.OvershootInterpolator(1.6f)).start()
-        confetti.burst(if (result.cycleCompleted) 260 else 150)
+        card.scaleX = 0.94f
+        card.scaleY = 0.94f
+        layer.animate().alpha(1f).setDuration(200).setInterpolator(kitEase()).start()
+        card.animate().scaleX(1f).scaleY(1f).setDuration(240).setInterpolator(kitEase()).start()
+        card.post {
+            confetti.originY = card.top + card.height / 2f
+            confetti.burst(big)
+        }
         layer.performHapticFeedback(if (Build.VERSION.SDK_INT >= 30) HapticFeedbackConstants.CONFIRM else HapticFeedbackConstants.LONG_PRESS)
     }
 

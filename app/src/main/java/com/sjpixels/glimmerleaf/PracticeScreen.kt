@@ -37,29 +37,28 @@ class ReaderController(
         val c = ui.c
         val card = ui.card(16)
         val top = ui.row()
-        val play = ui.iconButton(Icon.PLAY, c.t("play"), p.onAccent, 58, 26, p.accent) { toggle() }
-        play.elevation = ui.dpf(3)
+        val play = ui.iconButton(Icon.PLAY, c.t("play"), p.onAccent, 56, 24, p.accent) { toggle() }
         playIcon = play.tag as IconView
-        top.addView(play, ui.lp(ui.dp(58), ui.dp(58), r = 14))
+        top.addView(play, ui.lp(ui.dp(56), ui.dp(56), r = 16))
         val info = ui.col {
-            addView(ui.h3(c.t("listen")))
+            addView(ui.cardTitle(c.t("listen")))
             val gender = if (act.prefs.voiceGender == "male") c.t("voice_male") else c.t("voice_female")
-            status = ui.muted((Content.NATIVE[c.lang] ?: c.lang) + " · " + gender, 13f)
+            status = ui.muted((Content.NATIVE[c.lang] ?: c.lang) + " · " + gender)
             addView(status, ui.lp(t = 2))
         }
         top.addView(info, ui.lp(0, WRAP, 1f))
         card.addView(top, ui.lp())
 
         val controls = ui.row(Gravity.CENTER)
-        controls.addView(ui.iconButton(Icon.PREV, c.t("previous"), p.ink, 46, 22) { act.speaker.previous(act.prefs) })
-        controls.addView(ui.space(0), ui.lp(ui.dp(18), 1))
-        controls.addView(ui.iconButton(Icon.STOP, c.t("stop"), p.ink, 46, 22) {
+        controls.addView(ui.iconButton(Icon.PREV, c.t("previous"), p.ink, 48, 24) { act.speaker.previous(act.prefs) })
+        controls.addView(ui.space(0), ui.lp(ui.dp(16), 1))
+        controls.addView(ui.iconButton(Icon.STOP, c.t("stop"), p.ink, 48, 24) {
             act.speaker.stop()
             clearHighlight()
         })
-        controls.addView(ui.space(0), ui.lp(ui.dp(18), 1))
-        controls.addView(ui.iconButton(Icon.NEXT, c.t("next"), p.ink, 46, 22) { act.speaker.next(act.prefs) })
-        card.addView(controls, ui.lp(t = 8))
+        controls.addView(ui.space(0), ui.lp(ui.dp(16), 1))
+        controls.addView(ui.iconButton(Icon.NEXT, c.t("next"), p.ink, 48, 24) { act.speaker.next(act.prefs) })
+        card.addView(controls, ui.lp(t = 12))
 
         attach()
         val s = act.speaker
@@ -124,7 +123,7 @@ class ReaderController(
         val v = views.getOrNull(i) ?: return
         highlighted = v
         highlightedBg = v.background
-        v.background = rounded(withAlpha(ui.p.glow, if (ui.p.dark) 60 else 90), ui.dpf(14))
+        v.background = rounded(ui.p.accentSoft, ui.dpf(12))
         if (scroll) scrollTo(v)
     }
 
@@ -183,11 +182,11 @@ class PracticeScreen(act: MainActivity, private val dayNum: Int, private val aut
         val chunks = ArrayList<String>()
         val chunkViews = ArrayList<View>()
 
-        page.addView(ui.eyebrow(c.t("day_n_of_28", "n" to dayNum) + " · " + c.weekTitle(dayNum)), ui.lp(t = 8))
+        page.addView(ui.row { addView(ui.chip(c.t("day_n_of_28", "n" to dayNum) + " · " + c.weekTitle(dayNum))) }, ui.lp(t = 8))
         val headBlock = ui.col {
             setPadding(ui.dp(4), ui.dp(4), ui.dp(4), ui.dp(4))
             addView(ui.h1(d.title))
-            addView(ui.text(d.theme, 16f, p.muted, Fonts.serifItalic, 1.3f), ui.lp(t = 4))
+            addView(ui.themeLine(d.theme), ui.lp(t = 4))
         }
         page.addView(headBlock, ui.lp(t = 2, l = -4, r = -4))
         chunks += c.t("day_n", "n" to dayNum) + ". " + d.title + ". " + d.theme
@@ -202,17 +201,21 @@ class PracticeScreen(act: MainActivity, private val dayNum: Int, private val aut
         }
         if (chipText != null) {
             val chipRow = ui.row {
-                val chip = if (status == DayStatus.DONE) ui.chip("✓ $chipText", p.accent, p.onAccent) else ui.chip(chipText)
+                val chip = when (status) {
+                    DayStatus.DONE -> ui.chip(chipText, p.accent, p.onAccent, Icon.CHECK)
+                    DayStatus.CURRENT -> ui.chip(chipText, icon = if (st.isResting()) Icon.LOCK else Icon.BOOK)
+                    else -> ui.chip(chipText)
+                }
                 addView(chip)
             }
             page.addView(chipRow, ui.lp(t = 12))
         }
         if (status == DayStatus.UPCOMING || (status == DayStatus.CURRENT && st.isResting())) {
             val banner = ui.row(Gravity.TOP) {
-                setPadding(ui.dp(14), ui.dp(12), ui.dp(14), ui.dp(12))
-                background = rounded(withAlpha(p.glow, if (p.dark) 40 else 60), ui.dpf(16))
-                addView(IconView(act, Icon.SPARK, p.accent, 18), ui.lp(ui.dp(18), ui.dp(18), r = 10, t = 2))
-                addView(ui.text(c.t("future_banner"), 14f, p.ink, Fonts.sans, 1.35f), ui.lp(0, WRAP, 1f))
+                setPadding(ui.dp(16), ui.dp(12), ui.dp(16), ui.dp(12))
+                background = rounded(p.surfaceAlt, ui.dpf(16), p.line, ui.dp(1))
+                addView(IconView(act, Icon.SPARK, p.ink, 20), ui.lp(ui.dp(20), ui.dp(20), r = 12))
+                addView(ui.text(c.t("future_banner"), 14f, p.ink, Fonts.sans, lineSp = 20f), ui.lp(0, WRAP, 1f))
             }
             page.addView(banner, ui.lp(t = 12))
         }
@@ -222,8 +225,8 @@ class PracticeScreen(act: MainActivity, private val dayNum: Int, private val aut
 
         // intro
         for (para in d.intro) {
-            val tv = ui.body(para).apply { setPadding(ui.dp(6), ui.dp(4), ui.dp(6), ui.dp(4)) }
-            page.addView(tv, ui.lp(t = 10, l = -6, r = -6))
+            val tv = ui.body(para).apply { setPadding(ui.dp(8), ui.dp(4), ui.dp(8), ui.dp(4)) }
+            page.addView(tv, ui.lp(t = 8, l = -8, r = -8))
             chunks += para
             chunkViews += tv
         }
@@ -232,25 +235,27 @@ class PracticeScreen(act: MainActivity, private val dayNum: Int, private val aut
         page.addView(ui.sectionTitle(c.t("section_practice")))
         d.steps.forEachIndexed { i, step ->
             val rowV = ui.row(Gravity.TOP) {
-                setPadding(ui.dp(14), ui.dp(14), ui.dp(14), ui.dp(14))
-                background = rounded(p.surface, ui.dpf(18), p.line, ui.dp(1))
-                val num = ui.text((i + 1).toString(), 15f, p.onAccent, Fonts.serifBold, 1f, Gravity.CENTER).apply {
-                    background = oval(p.accent)
-                }
-                addView(num, ui.lp(ui.dp(30), ui.dp(30), r = 12))
-                addView(ui.text(step, 15.5f, p.ink, Fonts.sans, 1.4f), ui.lp(0, WRAP, 1f, t = 3))
+                // Step card: 16dp inset, 24dp number gutter, 12dp gap.
+                setPadding(ui.dp(16), ui.dp(16), ui.dp(16), ui.dp(16))
+                background = rounded(p.surface, ui.dpf(16), p.line, ui.dp(1))
+                val num = ui.text((i + 1).toString(), 16f, p.ink, Fonts.serifBold, gravity = Gravity.START, lineSp = 24f)
+                addView(num, ui.lp(ui.dp(24), WRAP, r = 12))
+                addView(ui.body(step), ui.lp(0, WRAP, 1f))
             }
-            page.addView(rowV, ui.lp(b = 10))
+            page.addView(rowV, ui.lp(b = 12))
             chunks += c.t("step_n", "n" to i + 1) + ". " + step
             chunkViews += rowV
         }
 
         // affirmation
         page.addView(ui.sectionTitle(c.t("section_affirmation")))
-        val aff = ui.col(22, 22) {
-            background = GlowDrawable(p, ui.dpf(22), act.resources.displayMetrics.density, dayNum)
-            addView(ui.text("“", 40f, p.accent, Fonts.serifBold, 0.8f))
-            addView(ui.text(d.affirmation, 20f, p.ink, Fonts.serifItalic, 1.35f))
+        // Quote card: 20dp inset on accentSoft, 32sp decorative opening quote, italic ink.
+        val aff = ui.col(20, 20) {
+            background = rounded(p.accentSoft, ui.dpf(16))
+            addView(ui.text("“", 32f, p.ink, Fonts.serifBold, lineSp = 32f).apply {
+                importantForAccessibility = View.IMPORTANT_FOR_ACCESSIBILITY_NO
+            })
+            addView(ui.themeLine(d.affirmation, p.ink), ui.lp(t = 4))
         }
         page.addView(aff, ui.lp())
         chunks += d.affirmation
@@ -263,10 +268,10 @@ class PracticeScreen(act: MainActivity, private val dayNum: Int, private val aut
         // ------------------------------------------------------------ journal
         val jHead = ui.row {
             addView(ui.h2(c.t("section_journal")), ui.lp(0, WRAP, 1f))
-            draftLabel = ui.muted("", 12f)
+            draftLabel = ui.muted("", 12f).apply { accessibilityLiveRegion = View.ACCESSIBILITY_LIVE_REGION_POLITE }
             addView(draftLabel)
         }
-        page.addView(jHead, ui.lp(t = 30, b = 6))
+        page.addView(jHead, ui.lp(t = 28, b = 12))
 
         val draft = Db.get(act).draft(dayNum)
         if (!moodLoaded) {
@@ -278,7 +283,7 @@ class PracticeScreen(act: MainActivity, private val dayNum: Int, private val aut
         prompts = sections.map { it.prompt }
         val journalCard = ui.card(16)
         sections.forEachIndexed { si, sec ->
-            journalCard.addView(ui.text(sec.prompt, 15f, p.ink, Fonts.sansMedium, 1.25f), ui.lp(t = if (si == 0) 2 else 18, b = 8))
+            journalCard.addView(ui.h3(sec.prompt), ui.lp(t = if (si == 0) 0 else 20, b = 8))
             val saved = draft?.notes?.sections?.getOrNull(si)?.items ?: emptyList()
             val list = ArrayList<EditText>()
             if (sec.multiline) {
@@ -289,7 +294,7 @@ class PracticeScreen(act: MainActivity, private val dayNum: Int, private val aut
             } else {
                 for (k in 0 until sec.count) {
                     val r = ui.row(Gravity.CENTER_VERTICAL)
-                    r.addView(ui.text("${k + 1}", 14f, p.accent, Fonts.serifBold, 1f, Gravity.CENTER), ui.lp(ui.dp(26), WRAP))
+                    r.addView(ui.text("${k + 1}", 14f, p.muted, Fonts.sansMedium, gravity = Gravity.START, lineSp = 20f), ui.lp(ui.dp(24), WRAP))
                     val e = ui.input("", false, saved.getOrNull(k) ?: "")
                     watch(e)
                     r.addView(e, ui.lp(0, WRAP, 1f))
@@ -299,17 +304,21 @@ class PracticeScreen(act: MainActivity, private val dayNum: Int, private val aut
             }
             fields += list
         }
-        journalCard.addView(ui.text(c.t("reflection_label"), 15f, p.ink, Fonts.sansMedium), ui.lp(t = 18, b = 8))
+        journalCard.addView(ui.h3(c.t("reflection_label")), ui.lp(t = 20, b = 8))
         val refl = ui.input(c.t("reflection_hint"), true, draft?.notes?.reflection ?: "")
         watch(refl)
         reflection = refl
         journalCard.addView(refl, ui.lp())
 
-        journalCard.addView(ui.text(c.t("mood_label"), 15f, p.ink, Fonts.sansMedium), ui.lp(t = 18, b = 8))
+        journalCard.addView(ui.h3(c.t("mood_label")), ui.lp(t = 20, b = 8))
         val moodRow = ui.row(Gravity.CENTER)
         val moodViews = ArrayList<TextView>()
+        val moodNames = listOf("sad", "neutral", "okay", "happy", "delighted")
         MOODS.forEachIndexed { i, m ->
-            val tv = ui.text(m, 26f, p.ink, Fonts.sans, 1f, Gravity.CENTER)
+            val tv = ui.text(m, 24f, p.ink, Fonts.sans, 1f, Gravity.CENTER)
+            tv.contentDescription = moodNames[i]
+            tv.isClickable = true
+            tv.isFocusable = true
             moodViews += tv
             tv.setOnClickListener {
                 mood = if (mood == i + 1) 0 else i + 1
@@ -317,14 +326,14 @@ class PracticeScreen(act: MainActivity, private val dayNum: Int, private val aut
                 handler.removeCallbacks(saver)
                 handler.postDelayed(saver, 400)
             }
-            moodRow.addView(tv, ui.lp(0, ui.dp(52), 1f, l = 3, r = 3))
+            moodRow.addView(tv, ui.lp(0, ui.dp(48), 1f, l = 2, r = 2))
         }
         styleMoods(ui, moodViews)
         journalCard.addView(moodRow, ui.lp())
         page.addView(journalCard, ui.lp())
 
         val label = if (count > 0) c.t("complete_again_button") else c.t("complete_button")
-        page.addView(ui.button(label, icon = Icon.CHECK) { complete() }, ui.lp(t = 18))
+        page.addView(ui.button(label, icon = Icon.CHECK) { complete() }, ui.lp(t = 16))
 
         // ------------------------------------------------------------ previous entries
         val cycle = st.cycle
@@ -332,7 +341,7 @@ class PracticeScreen(act: MainActivity, private val dayNum: Int, private val aut
             val sessions = Db.get(act).sessionsForDay(cycle.id, dayNum)
             page.addView(ui.sectionTitle(c.t("entries_title")))
             if (sessions.isEmpty()) {
-                page.addView(ui.muted(c.t("no_entries")))
+                page.addView(ui.card { addView(ui.muted(c.t("no_entries"))) }, ui.lp())
             } else {
                 for (s in sessions) page.addView(entryCard(ui, s) {
                     act.confirm(c.t("delete_session_q"), c.t("delete"), danger = true) {
@@ -340,7 +349,7 @@ class PracticeScreen(act: MainActivity, private val dayNum: Int, private val aut
                         act.toast(c.t("deleted"))
                         act.refresh()
                     }
-                }, ui.lp(b = 10))
+                }, ui.lp(b = 12))
             }
         }
 
@@ -354,8 +363,9 @@ class PracticeScreen(act: MainActivity, private val dayNum: Int, private val aut
     private fun styleMoods(ui: Ui, views: List<TextView>) {
         views.forEachIndexed { i, tv ->
             val sel = mood == i + 1
-            tv.background = rounded(if (sel) ui.p.accentSoft else 0, ui.dpf(16), if (sel) ui.p.accent else ui.p.line, ui.dp(if (sel) 2 else 1))
-            tv.alpha = if (mood == 0 || sel) 1f else 0.55f
+            // Unselected surface; selected accentSoft with a 2dp accent ring.
+            tv.background = rounded(if (sel) ui.p.accentSoft else ui.p.surface, ui.dpf(16), if (sel) ui.p.accent else ui.p.line, ui.dp(if (sel) 2 else 1))
+            tv.isSelected = sel
         }
     }
 
@@ -432,11 +442,13 @@ class PracticeScreen(act: MainActivity, private val dayNum: Int, private val aut
 fun entryCard(ui: Ui, s: Session, onDelete: (() -> Unit)?): View {
     val p = ui.p
     val c = ui.c
-    val card = ui.card(14, p.surfaceAlt)
+    val card = ui.card(16)
     val head = ui.row {
-        addView(ui.text(ui.dateTime(s.completedAt), 13f, p.muted, Fonts.sansMedium), ui.lp(0, WRAP, 1f))
-        if (s.mood in 1..5) addView(ui.text(MOODS[s.mood - 1], 18f), ui.lp(WRAP, WRAP, r = 4))
-        if (onDelete != null) addView(ui.iconButton(Icon.TRASH, c.t("delete"), p.muted, 36, 18) { onDelete() })
+        addView(ui.muted(ui.dateTime(s.completedAt)), ui.lp(0, WRAP, 1f))
+        if (s.mood in 1..5) addView(ui.text(MOODS[s.mood - 1], 20f).apply {
+            contentDescription = listOf("sad", "neutral", "okay", "happy", "delighted")[s.mood - 1]
+        }, ui.lp(WRAP, WRAP, r = 4))
+        if (onDelete != null) addView(ui.iconButton(Icon.TRASH, c.t("delete"), p.muted, 48, 24) { onDelete() })
     }
     card.addView(head, ui.lp())
     var any = false
@@ -444,14 +456,14 @@ fun entryCard(ui: Ui, s: Session, onDelete: (() -> Unit)?): View {
         val items = sec.items.filter { it.isNotBlank() }
         if (items.isEmpty()) continue
         any = true
-        card.addView(ui.text(sec.prompt, 12.5f, p.accent, Fonts.sansMedium), ui.lp(t = 8, b = 2))
-        for (it in items) card.addView(ui.text("•  $it", 14.5f, p.ink, Fonts.sans, 1.35f), ui.lp(t = 2))
+        card.addView(ui.eyebrow(sec.prompt), ui.lp(t = 8, b = 4))
+        for (it in items) card.addView(ui.text("•  $it", 16f, p.ink, Fonts.sans, lineSp = 24f), ui.lp(t = 2))
     }
     if (s.notes.reflection.isNotBlank()) {
         any = true
-        card.addView(ui.text(c.t("reflection_label"), 12.5f, p.accent, Fonts.sansMedium), ui.lp(t = 8, b = 2))
-        card.addView(ui.text(s.notes.reflection, 14.5f, p.ink, Fonts.serifItalic, 1.35f))
+        card.addView(ui.eyebrow(c.t("reflection_label")), ui.lp(t = 8, b = 4))
+        card.addView(ui.text(s.notes.reflection, 16f, p.ink, Fonts.sans, lineSp = 24f))
     }
-    if (!any) card.addView(ui.muted(c.t("no_entries"), 13f), ui.lp(t = 4))
+    if (!any) card.addView(ui.muted(c.t("no_entries")), ui.lp(t = 4))
     return card
 }

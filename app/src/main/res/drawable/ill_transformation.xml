@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Generated from design/kit/svg/illustrations/transformation.svg. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="72dp" android:height="72dp"
+    android:viewportWidth="72" android:viewportHeight="72">
+    <path android:pathData="M35 50q-3-30 1-36m-1 20Q8 1 11 28q0 14 23 13-23-7-17 8 5 10 18-2 17 13 20 0 2-10-17-6 26-1 23-22-7-12-25 16"
+        android:strokeColor="#FF000000" android:strokeWidth="2"
+        android:strokeLineCap="round" android:strokeLineJoin="round" />
+</vector>

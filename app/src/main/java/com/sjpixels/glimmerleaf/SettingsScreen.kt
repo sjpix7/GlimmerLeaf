@@ -9,9 +9,9 @@ import android.provider.Settings
 import android.text.format.DateFormat
 import android.view.Gravity
 import android.view.View
+import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.SeekBar
-import android.widget.Switch
 import android.widget.TextView
 
 class SettingsScreen(act: MainActivity) : Screen(act) {
@@ -23,50 +23,44 @@ class SettingsScreen(act: MainActivity) : Screen(act) {
         val page = ui.screen()
 
         page.addView(ui.eyebrow(c.t("tab_settings")), ui.lp(t = 8))
-        page.addView(ui.h1(c.t("settings_title")), ui.lp(t = 6, b = 4))
+        page.addView(ui.h1(c.t("settings_title")), ui.lp(t = 4, b = 4))
 
         // ------------------------------------------------------------ appearance
         page.addView(ui.sectionTitle(c.t("appearance")))
         val look = ui.card(16)
-        look.addView(ui.text(c.t("theme"), 15f, p.ink, Fonts.sansMedium), ui.lp(b = 12))
-        val rows = listOf(Themes.all.take(4), Themes.all.drop(4))
-        for (group in rows) {
+        look.addView(ui.h3(c.t("theme")), ui.lp(b = 8))
+        // Seven swatches in rows of 4 and 3 (2 per row at very large font sizes). Every cell has the
+        // same layout, so circles and names line up; the selection is a ring around the circle only.
+        val perRow = if (act.resources.configuration.fontScale > 1.3f) 2 else 4
+        for (group in Themes.all.chunked(perRow)) {
             val r = ui.row(Gravity.TOP)
             for (t in group) {
                 val sel = t.id == prefs.themeId
                 val tp = t.pal(prefs.dark)
                 val cell = ui.col {
                     gravity = Gravity.CENTER_HORIZONTAL
-                    setPadding(ui.dp(2), ui.dp(6), ui.dp(2), ui.dp(6))
-                    val sw = View(act).apply {
-                        background = GlowDrawable(tp, ui.dpf(26), act.resources.displayMetrics.density, t.id.hashCode())
-                    }
+                    setPadding(ui.dp(2), ui.dp(4), ui.dp(2), ui.dp(8))
                     val ring = android.widget.FrameLayout(act).apply {
-                        setPadding(ui.dp(3), ui.dp(3), ui.dp(3), ui.dp(3))
-                        background = oval(0, if (sel) p.accent else p.line, ui.dp(if (sel) 3 else 1))
-                        addView(sw, android.widget.FrameLayout.LayoutParams(MATCH, MATCH))
-                        val dot = View(act).apply { background = oval(tp.accent, tp.surface, ui.dp(2)) }
-                        addView(dot, android.widget.FrameLayout.LayoutParams(ui.dp(18), ui.dp(18), Gravity.CENTER))
-                        sw.clipToOutline = true
-                        sw.outlineProvider = object : android.view.ViewOutlineProvider() {
-                            override fun getOutline(view: View, outline: android.graphics.Outline) {
-                                outline.setOval(0, 0, view.width, view.height)
-                            }
-                        }
+                        background = oval(0, if (sel) p.accent else 0, ui.dp(2))
+                        val dot = View(act).apply { background = oval(tp.accent, tp.line, ui.dp(1)) }
+                        addView(dot, android.widget.FrameLayout.LayoutParams(ui.dp(32), ui.dp(32), Gravity.CENTER))
                     }
-                    addView(ring, ui.lp(ui.dp(54), ui.dp(54), b = 6))
-                    addView(ui.text(c.t(t.nameKey), 11.5f, if (sel) p.ink else p.muted, if (sel) Fonts.sansBold else Fonts.sans, 1.15f, Gravity.CENTER))
+                    addView(ring, ui.lp(ui.dp(44), ui.dp(44), b = 4))
+                    addView(ui.text(c.t(t.nameKey), 12f, if (sel) p.ink else p.muted, if (sel) Fonts.sansMedium else Fonts.sans,
+                        gravity = Gravity.CENTER, lineSp = 16f).apply { maxLines = 2 }, ui.lp(MATCH, WRAP))
+                    contentDescription = c.t(t.nameKey)
+                    isSelected = sel
                 }
-                ui.clickable(cell, ui.dpf(16)) {
+                ui.clickable(cell, ui.dpf(12)) {
                     prefs.themeId = t.id
                     act.applyTheme()
                 }
                 r.addView(cell, ui.lp(0, WRAP, 1f))
             }
-            if (group.size < 4) repeat(4 - group.size) { r.addView(View(act), ui.lp(0, 1, 1f)) }
-            look.addView(r, ui.lp(b = 4))
+            repeat(perRow - group.size) { r.addView(View(act), ui.lp(0, 1, 1f)) }
+            look.addView(r, ui.lp())
         }
-        look.addView(ui.divider(), ui.lp(t = 10, b = 4))
+        look.addView(ui.divider(), ui.lp(t = 8, b = 4))
         look.addView(switchRow(ui, c.t("night_mode"), null, prefs.dark) {
             prefs.dark = it
             act.applyTheme()
@@ -78,7 +72,7 @@ class SettingsScreen(act: MainActivity) : Screen(act) {
         val voice = ui.card(16)
         voice.addView(valueRow(ui, c.t("language"), Content.NATIVE[prefs.lang] ?: prefs.lang, c.t("language_note")) { pickLanguage() })
         voice.addView(ui.divider(), ui.lp(t = 4, b = 12))
-        voice.addView(ui.text(c.t("voice"), 15f, p.ink, Fonts.sansMedium), ui.lp(b = 10))
+        voice.addView(ui.h3(c.t("voice")), ui.lp(b = 8))
         voice.addView(segmented(ui, listOf("female" to c.t("voice_female"), "male" to c.t("voice_male")), prefs.voiceGender) {
             prefs.voiceGender = it
             prefs.setVoiceName(prefs.lang, null)
@@ -93,33 +87,40 @@ class SettingsScreen(act: MainActivity) : Screen(act) {
         voice.addView(ui.divider(), ui.lp(t = 4, b = 12))
 
         voice.addView(ui.row {
-            addView(ui.text(c.t("speech_rate"), 15f, p.ink, Fonts.sansMedium), ui.lp(0, WRAP, 1f))
-            addView(ui.muted(String.format(java.util.Locale.US, "%.2f×", prefs.speechRate), 13f).also { it.tag = "rate" })
+            addView(ui.h3(c.t("speech_rate")), ui.lp(0, WRAP, 1f))
+            addView(ui.text(String.format(java.util.Locale.US, "%.2f×", prefs.speechRate), 16f, p.ink, Fonts.sansMedium, lineSp = 24f).also { it.tag = "rate" })
         })
         val rateLabel = (voice.getChildAt(voice.childCount - 1) as LinearLayout).findViewWithTag<TextView>("rate")
+        // Slider: 0.50× to 1.50× in steps of 0.05×; accent active track and thumb, muted inactive line.
         val seek = SeekBar(act).apply {
-            max = 100
-            progress = ((prefs.speechRate - 0.5f) * 100).toInt().coerceIn(0, 100)
+            max = 20
+            progress = Math.round((prefs.speechRate - 0.5f) * 20).coerceIn(0, 20)
             progressTintList = ColorStateList.valueOf(p.accent)
             thumbTintList = ColorStateList.valueOf(p.accent)
-            progressBackgroundTintList = ColorStateList.valueOf(p.line)
+            progressBackgroundTintList = ColorStateList.valueOf(p.muted)
+            minimumHeight = ui.dp(48)
+            contentDescription = c.t("speech_rate")
             setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
                 override fun onProgressChanged(sb: SeekBar?, value: Int, fromUser: Boolean) {
-                    val rate = 0.5f + value / 100f
-                    rateLabel?.text = String.format(java.util.Locale.US, "%.2f×", rate)
+                    val label = String.format(java.util.Locale.US, "%.2f×", 0.5f + value * 0.05f)
+                    rateLabel?.text = label
+                    sb?.stateDescriptionCompat(label)
+                    if (fromUser && sb?.isPressed != true) {
+                        // Keyboard and accessibility adjustments save straight away.
+                        prefs.speechRate = 0.5f + value * 0.05f
+                        act.speaker.invalidateConfig()
+                    }
                 }
                 override fun onStartTrackingTouch(sb: SeekBar?) {}
                 override fun onStopTrackingTouch(sb: SeekBar?) {
-                    prefs.speechRate = 0.5f + (sb?.progress ?: 50) / 100f
+                    prefs.speechRate = 0.5f + (sb?.progress ?: 10) * 0.05f
                     act.speaker.invalidateConfig()
                 }
             })
         }
-        voice.addView(seek, ui.lp(t = 6, b = 12))
-        voice.addView(ui.row {
-            addView(ui.button(c.t("test_voice"), Btn.SECONDARY, Icon.SPEAKER) { act.speaker.sample(prefs, c.t("voice_sample")) }, ui.lp(0, WRAP, 1f, r = 8))
-            addView(ui.button(c.t("install_voices"), Btn.GHOST) { openVoiceInstaller(act) }, ui.lp(0, WRAP, 1f))
-        })
+        voice.addView(seek, ui.lp(t = 4, b = 12))
+        voice.addView(ui.button(c.t("test_voice"), Btn.SECONDARY, Icon.SPEAKER) { act.speaker.sample(prefs, c.t("voice_sample")) }, ui.lp())
+        voice.addView(ui.button(c.t("install_voices"), Btn.GHOST) { openVoiceInstaller(act) }, ui.lp(t = 8))
         page.addView(voice, ui.lp())
 
         // ------------------------------------------------------------ reminders
@@ -143,7 +144,7 @@ class SettingsScreen(act: MainActivity) : Screen(act) {
             rem.addView(valueRow(ui, c.t("reminder_end"), ui.minutesLabel(prefs.reminderEndMin), null) {
                 pickTime(prefs.reminderEndMin) { m -> prefs.reminderEndMin = maxOf(m, prefs.reminderStartMin) }
             })
-            rem.addView(ui.text(c.t("reminder_interval"), 15f, p.ink, Fonts.sansMedium), ui.lp(t = 10, b = 10))
+            rem.addView(ui.h3(c.t("reminder_interval")), ui.lp(t = 12, b = 8))
             val intervals = listOf(60, 120, 180, 240, 360)
             rem.addView(segmented(ui, intervals.map { it.toString() to c.t("hours_n", "n" to it / 60) }, prefs.reminderIntervalMin.toString()) {
                 prefs.reminderIntervalMin = it.toInt()
@@ -160,7 +161,7 @@ class SettingsScreen(act: MainActivity) : Screen(act) {
                     }
                 })
             }
-            rem.addView(ui.text(c.t("unlock_mode"), 15f, p.ink, Fonts.sansMedium), ui.lp(t = 10, b = 10))
+            rem.addView(ui.h3(c.t("unlock_mode")), ui.lp(t = 12, b = 8))
             rem.addView(segmented(ui, listOf("next_day" to c.t("unlock_next_day"), "immediate" to c.t("unlock_immediately")), prefs.unlockMode) {
                 prefs.unlockMode = it
                 if (it == "immediate") prefs.unlockAt = 0L
@@ -173,7 +174,7 @@ class SettingsScreen(act: MainActivity) : Screen(act) {
         // ------------------------------------------------------------ journey
         page.addView(ui.sectionTitle(c.t("journey_section")))
         val j = ui.card(16)
-        j.addView(ui.muted(c.t("reset_journey_body"), 13.5f), ui.lp(b = 12))
+        j.addView(ui.muted(c.t("reset_journey_body")), ui.lp(b = 12))
         j.addView(ui.button(c.t("reset_journey"), Btn.DANGER) {
             act.confirm(c.t("reset_journey_body"), c.t("reset_journey"), danger = true, title = c.t("reset_journey")) {
                 Journey.reset(act)
@@ -191,17 +192,24 @@ class SettingsScreen(act: MainActivity) : Screen(act) {
             act.packageManager.getPackageInfo(act.packageName, 0).versionName ?: "1.0"
         } catch (e: Exception) { "1.0" }
         about.addView(ui.row {
-            addView(ui.text(c.t("app_name"), 16f, p.ink, Fonts.serifBold), ui.lp(0, WRAP, 1f))
-            addView(ui.muted(c.t("version") + " " + version, 13f))
+            addView(ImageView(act).apply {
+                setImageResource(R.drawable.brand_mark)
+                importantForAccessibility = View.IMPORTANT_FOR_ACCESSIBILITY_NO
+            }, ui.lp(ui.dp(40), ui.dp(40), r = 12))
+            addView(ui.col {
+                addView(ui.cardTitle(c.t("app_name")))
+                addView(ui.muted(c.t("version") + " " + version))
+            }, ui.lp(0, WRAP, 1f))
         })
-        about.addView(ui.muted(c.t("content_note"), 13f), ui.lp(t = 6))
+        about.addView(ui.muted(c.t("content_note")), ui.lp(t = 12))
         val credit = ui.row {
-            addView(IconView(act, Icon.HEART, p.accent, 16), ui.lp(ui.dp(16), ui.dp(16), r = 8))
-            addView(ui.text("Created with Love by ", 13.5f, p.muted))
-            addView(ui.text("sj.pixels", 13.5f, p.accent, Fonts.sansBold).apply { paint.isUnderlineText = true })
+            minimumHeight = ui.dp(48)
+            addView(IconView(act, Icon.HEART, p.accent, 20), ui.lp(ui.dp(20), ui.dp(20), r = 8))
+            addView(ui.muted("Created with Love by "))
+            addView(ui.text("sj.pixels", 14f, p.ink, Fonts.sansMedium, lineSp = 20f).apply { paint.isUnderlineText = true })
         }
         ui.clickable(credit, ui.dpf(12)) { act.openUrl(MainActivity.CREDIT_URL) }
-        about.addView(credit, ui.lp(t = 12))
+        about.addView(credit, ui.lp(t = 4))
         page.addView(about, ui.lp())
 
         return ui.page(page)
@@ -212,32 +220,31 @@ class SettingsScreen(act: MainActivity) : Screen(act) {
     private fun switchRow(ui: Ui, label: String, sub: String?, checked: Boolean, onChange: (Boolean) -> Unit): View {
         val p = ui.p
         return ui.row {
-            setPadding(0, ui.dp(6), 0, ui.dp(6))
-            addView(ui.col {
-                addView(ui.text(label, 15f, p.ink, Fonts.sansMedium))
-                if (sub != null) addView(ui.muted(sub, 12.5f), ui.lp(t = 2))
-            }, ui.lp(0, WRAP, 1f))
-            val sw = Switch(act).apply {
-                isChecked = checked
-                val states = arrayOf(intArrayOf(android.R.attr.state_checked), intArrayOf())
-                thumbTintList = ColorStateList(states, intArrayOf(p.accent, if (p.dark) p.muted else p.surface))
-                trackTintList = ColorStateList(states, intArrayOf(withAlpha(p.accent, 120), withAlpha(p.ink, 60)))
-                setOnCheckedChangeListener { _, v -> onChange(v) }
+            minimumHeight = ui.dp(48)
+            val texts = ui.col {
+                addView(ui.h3(label))
+                if (sub != null) addView(ui.muted(sub), ui.lp(t = 2))
             }
+            addView(texts, ui.lp(0, WRAP, 1f, r = 12))
+            val sw = KitSwitch(act, p, checked, onChange = onChange).apply { contentDescription = label }
             addView(sw)
+            // The whole row toggles the switch.
+            setOnClickListener { sw.performClick() }
+            importantForAccessibility = View.IMPORTANT_FOR_ACCESSIBILITY_NO
         }
     }
 
     private fun valueRow(ui: Ui, label: String, value: String, sub: String?, onClick: () -> Unit): View {
         val p = ui.p
         val r = ui.row {
-            setPadding(ui.dp(4), ui.dp(10), ui.dp(4), ui.dp(10))
+            minimumHeight = ui.dp(48)
+            setPadding(ui.dp(4), ui.dp(8), ui.dp(4), ui.dp(8))
             addView(ui.col {
-                addView(ui.text(label, 15f, p.ink, Fonts.sansMedium))
-                if (sub != null) addView(ui.muted(sub, 12.5f), ui.lp(t = 2))
-            }, ui.lp(0, WRAP, 1f, r = 10))
-            addView(ui.text(value, 14f, p.accent, Fonts.sansMedium, 1.2f, Gravity.END), ui.lp(0, WRAP, 0.8f))
-            addView(IconView(act, Icon.CHEVRON, p.muted, 16), ui.lp(ui.dp(16), ui.dp(16), l = 6))
+                addView(ui.h3(label))
+                if (sub != null) addView(ui.muted(sub), ui.lp(t = 2))
+            }, ui.lp(0, WRAP, 1f, r = 12))
+            addView(ui.text(value, 14f, p.ink, Fonts.sans, gravity = Gravity.END, lineSp = 20f), ui.lp(0, WRAP, 0.8f))
+            addView(IconView(act, Icon.CHEVRON, p.muted, 20), ui.lp(ui.dp(20), ui.dp(20), l = 8))
         }
         ui.clickable(r, ui.dpf(12), onClick)
         return r
@@ -245,19 +252,22 @@ class SettingsScreen(act: MainActivity) : Screen(act) {
 
     private fun segmented(ui: Ui, options: List<Pair<String, String>>, selected: String, onPick: (String) -> Unit): View {
         val p = ui.p
+        // Segmented choice: 48dp cells on surfaceAlt, selected accent/onAccent; labels wrap rather than clip.
         val bar = ui.row {
             setPadding(ui.dp(4), ui.dp(4), ui.dp(4), ui.dp(4))
-            background = rounded(p.surfaceAlt, ui.dpf(22), p.line, ui.dp(1))
+            background = rounded(p.surfaceAlt, ui.dpf(24), p.line, ui.dp(1))
         }
-        for ((value, label) in options) {
+        options.forEachIndexed { i, (value, label) ->
             val sel = value == selected
-            val t = ui.text(label, 13.5f, if (sel) p.onAccent else p.ink, if (sel) Fonts.sansBold else Fonts.sansMedium, 1.1f, Gravity.CENTER).apply {
-                setPadding(ui.dp(6), ui.dp(9), ui.dp(6), ui.dp(9))
-                background = rounded(if (sel) p.accent else 0, ui.dpf(18))
-                maxLines = 2
+            val t = ui.text(label, 14f, if (sel) p.onAccent else p.ink, Fonts.sansMedium, gravity = Gravity.CENTER, lineSp = 20f).apply {
+                minHeight = ui.dp(48)
+                setPadding(ui.dp(8), ui.dp(8), ui.dp(8), ui.dp(8))
+                background = rounded(if (sel) p.accent else 0, ui.dpf(20))
+                isSelected = sel
+                contentDescription = "$label, ${i + 1} / ${options.size}"
             }
-            if (!sel) ui.clickable(t, ui.dpf(18)) { onPick(value) }
-            bar.addView(t, ui.lp(0, WRAP, 1f))
+            if (!sel) ui.clickable(t, ui.dpf(20)) { onPick(value) }
+            bar.addView(t, ui.lp(0, MATCH, 1f))
         }
         return bar
     }
@@ -270,7 +280,7 @@ class SettingsScreen(act: MainActivity) : Screen(act) {
         val names = langs.map { Content.NATIVE[it] ?: it }.toTypedArray()
         val d = act.dialogBuilder()
             .setTitle(act.pack.t("language"))
-            .setSingleChoiceItems(names, langs.indexOf(prefs.lang).coerceAtLeast(0)) { dlg, which ->
+            .setSingleChoiceItems(act.choiceAdapter(names), langs.indexOf(prefs.lang).coerceAtLeast(0)) { dlg, which ->
                 dlg.dismiss()
                 if (langs[which] != prefs.lang) {
                     act.speaker.stop()
@@ -305,7 +315,7 @@ class SettingsScreen(act: MainActivity) : Screen(act) {
         var choice = checked
         val d = act.dialogBuilder()
             .setTitle(c.t("voice_specific"))
-            .setSingleChoiceItems(labels, checked) { _, which ->
+            .setSingleChoiceItems(act.choiceAdapter(labels), checked) { _, which ->
                 choice = which
                 if (which > 0) act.speaker.sample(prefs, c.t("voice_sample"), voices[which - 1].voice)
             }
@@ -332,4 +342,8 @@ class SettingsScreen(act: MainActivity) : Screen(act) {
         d.setOnShowListener { act.styleDialog(d) }
         d.show()
     }
+}
+
+private fun View.stateDescriptionCompat(text: String) {
+    if (Build.VERSION.SDK_INT >= 30) stateDescription = text
 }

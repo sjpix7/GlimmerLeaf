@@ -29,6 +29,11 @@ class Prefs(context: Context) {
         return if (l in Content.LANGS) l else "en"
     }
 
+    /** Show the day of the month inside each square of the activity grid. */
+    var activityDates: Boolean
+        get() = sp.getBoolean("activity_dates", false)
+        set(v) { sp.edit().putBoolean("activity_dates", v).apply() }
+
     /** "female" or "male". */
     var voiceGender: String
         get() = sp.getString("voice_gender", "female") ?: "female"
