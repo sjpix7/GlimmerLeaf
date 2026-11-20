@@ -5,7 +5,7 @@
 # Glimmerleaf
 
 **A 28-day gratitude practice for Android that works fully offline.**<br/>
-Four weeks of small daily practices that train your heart to notice what is good.
+Four weeks of small daily practices, plus a daily gratitude list and a free-writing journal, to train your heart to notice what is good.
 
 [![Platform](https://img.shields.io/badge/platform-Android-3DDC84?logo=android&logoColor=white)](https://developer.android.com)
 [![Min SDK](https://img.shields.io/badge/minSdk-26%20(Android%208.0)-brightgreen)](#-build-it)
@@ -30,6 +30,7 @@ Four weeks of small daily practices that train your heart to notice what is good
 - [🚀 Publish to Google Play](#-publish-to-google-play)
 - [✏️ Change the practices](#️-change-the-practices)
 - [🗣️ Notes on voices](#️-notes-on-voices)
+- [🎨 Design kit](#-design-kit)
 - [📁 Project structure](#-project-structure)
 - [✅ Before release](#-before-release)
 - [📄 License](#-license)
@@ -44,10 +45,12 @@ Four weeks of small daily practices that train your heart to notice what is good
 | 🧭 | **Journey engine:** days run in order, future days can be finished early, days can be repeated, the journey archives itself when all 28 are done, and it can be reset | `Journey.kt` |
 | ⏰ | **Smart reminders** from 9:00, every 3 hours, until the day's practice is done (all adjustable) | `Reminders.kt` |
 | 🔊 | **Read-aloud** with the phone's offline text-to-speech: female or male voice, a specific-voice picker and speed control | `Speaker.kt`, `PracticeScreen.kt` |
-| 📝 | **Structured journal** for each practice: numbered prompts, a reflection, mood, and drafts that save automatically | `PracticeScreen.kt` |
-| 🗂️ | **History** of every journey, with delete per journey, day or entry, and share as text | `HistoryScreen.kt` |
-| 📊 | **Insights:** progress ring, streaks, sessions per practice, a 12-week activity grid and a mood trend | `InsightsScreen.kt` |
-| 🎨 | **7 colour themes** with a day/night switch, and confetti when you finish | `Theme.kt`, `Views.kt` |
+| 📝 | **Structured journal** for each practice: numbered prompts that start at the day's count and grow with **+ Add another**, a reflection, mood, and drafts that save automatically | `PracticeScreen.kt` |
+| 🌼 | **Daily gratitude:** a page for each day's small wins and thanks (at least five of each, as many more as you like), saved as you type, opened from the **Every day** cards on Today; earlier days can be reopened, edited or deleted | `Journals.kt` |
+| 📔 | **Gratitude journal:** free writing with no length limit and any number of timestamped entries per day; drafts are kept, and entries can be edited or deleted | `Journals.kt` |
+| 🗂️ | **History** with a **Journeys / Daily / Journal** switch and "Show more" paging; delete per journey, day or entry, share as text, and the activity grid below the journeys | `HistoryScreen.kt` |
+| 📊 | **Insights:** progress ring, streaks, sessions per practice, a mood trend and an activity grid covering everything since install, with year / month / week pickers and an optional "Show dates" overlay | `InsightsScreen.kt`, `ActivitySection.kt` |
+| 🎨 | **7 colour themes** with a day/night switch, built from the Glimmerleaf design kit, with line illustrations and confetti when you finish | `Theme.kt`, `Kit.kt`, `Views.kt` |
 | 💜 | "Created with Love by sj.pixels" credit with a link | `MainActivity.kt` |
 
 ### The four weeks
@@ -83,7 +86,7 @@ The interface strings are in `res/values-*/strings.xml`. Any string that's missi
 
 > 🛡️ **No accounts, no analytics, no ads, no tracking, and no third-party SDKs.**
 
-- 📱 All data (journeys, notes, mood and settings) stays **on the device**, in SQLite and SharedPreferences.
+- 📱 All data (journeys, notes, mood, daily gratitude, journal entries and settings) stays **on the device**, in SQLite and SharedPreferences.
 - 🌐 The app never needs an internet connection.
 - 🔔 Reminders are scheduled locally.
 - 📤 Data leaves the app only when you tap **Share** yourself.
@@ -185,6 +188,27 @@ for f in app/src/main/assets/content/*.json; do python3 -m json.tool "$f" > /dev
 
 ---
 
+## 🎨 Design kit
+
+The UI follows the kit in [`design/kit/`](design/kit/):
+
+| File | What it is |
+|---|---|
+| `tokens.json` | colours for the 7 themes (day and night), type scale, spacing and radii (the values in `Theme.kt` come from here) |
+| `svg/icons`, `svg/illustrations`, `svg/brand`, `svg/adaptive` | the source SVGs for icons, illustrations, the logo and the launcher icon |
+| `index.html`, `screens.html` | the kit overview and screen mock-ups |
+| `contrast.csv` | contrast checks for each theme's colour pairs |
+
+After changing any kit SVG, regenerate the VectorDrawables:
+
+```bash
+python3 design/svg2vd.py design/kit/svg app/src/main/res
+```
+
+Long traced outlines are simplified automatically so each path stays under Android's 32,767-character resource string limit.
+
+---
+
 ## 📁 Project structure
 
 ```
@@ -202,8 +226,13 @@ GlimmerLeaf/
 │       │   ├── Reminders.kt       # ⏰ notifications
 │       │   ├── Speaker.kt         # 🔊 text-to-speech
 │       │   ├── *Screen.kt         # 🖼️ Home, Practice, History, Insights, Settings, Contents
+│       │   ├── Journals.kt        # 🌼 daily gratitude + 📔 gratitude journal
+│       │   ├── ActivitySection.kt # 📊 activity grid shared by History and Insights
 │       │   └── Theme.kt · Views.kt · Kit.kt  # 🎨 UI toolkit
 │       └── res/                   # icons, strings (9 locales), themes
+├── design/
+│   ├── kit/                       # 🎨 tokens, SVGs, mock-ups
+│   └── svg2vd.py                  # SVG → VectorDrawable converter
 ├── store/                         # 🏪 Play Store graphics
 ├── PRIVACY.md
 └── LICENSE
